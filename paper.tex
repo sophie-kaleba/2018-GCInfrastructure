@@ -139,15 +139,15 @@ The Cog virtual machine (VM), the default VM for multiple programming languages 
 
 Building and tuning a new GC algorithm requires to evaluate its behavior. A benchmarking infrastructure is required to do so. To build GC benchmarks, we took two approaches. 
 
-Firstly, we contacted multiple companies using the Cog VM in production on memory intensive application (>1Gb heaps) and built benchmarks out of their deployed application. As an example, we will discuss in the paper the Moose benchmarks implemented in collaboration with Feenk\footnote{https://feenk.com/}. Part of the business of Feenk consists in analysing software written in multiple programming languages using the open-source framework Moose~\cite{MoosePaper1,MooseBook1}. Using Moose, the application parses the software to analyse into a model, performs analysis on it and lastly release the model. This behavior was turned into three benchmarks, growing, accessing and shrinking the heap.
+Firstly, we contacted multiple companies using the Cog VM in production on memory intensive application (>1Gb heaps) and built benchmarks out of their deployed application. As an example, we will discuss in the paper in Section \ref{sec:mooseBench} the Moose benchmarks implemented in collaboration with Feenk\footnote{https://feenk.com/}. Part of the business of Feenk consists in analysing software written in multiple programming languages using the open-source framework Moose~\cite{MoosePaper1,MooseBook1}. Using Moose, the application parses the software to analyse into a model, performs analysis on it and lastly release the model. This behavior was turned into three benchmarks, growing, accessing and shrinking the heap. 
 
-Secondly, \todo{Sophie :-) a few sentence on your bench}
+Secondly, \todo{Sophie :-) a few sentence on your bench + ref} \ref{sec:confBench}
 
-- Gc algo ref
+To evaluate a new algorithm, we also need to compare it to reference implementations. The Cog VM features a Mark-Compact algorithm in production. The compaction phase is quite specific since it moves objects in memory and spend time updating references. In addition to this algorithm, we implemented a Mark-Sweep, which does not move objects in memory and is quicker to perform. Section \ref{sec:ref} details the two implementations.
 
-- We then evaluated the two reference algorithms on the infrastructure built to have reference benchmark results.
+We evaluated both algorithm on the benchmarks we built to provide results of the reference algorithms on the infrastructure built.
 
-- related and futur
+We conclude the paper by discussing some related work, the GC benchmarks suites for Java and the ACDC benchmarks, and some future work.
 
 \section{Building Macro-benchmarks}
 \label{sec:bench}
@@ -155,6 +155,7 @@ Secondly, \todo{Sophie :-) a few sentence on your bench}
 2 directions. One is to build real benchs from real apps. Same direction as Dacapo... To be ported ?
 
 \subsection{Moose benchmark}
+\label{sec:mooseBench}
 
 Explain all the phases
 
@@ -170,6 +171,7 @@ benchAnalysisDeprecation	mooseModel allModelClasses select: [ :each |    		(ea
 benchRelease	mooseModel := nil.	allProperties := nil.	3 timesRepeat: [Smalltalk garbageCollect].
 
 \subsection{Configurable benchmark}
+\label{sec:confBench}
 
 Sophie's section
 
