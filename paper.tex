@@ -111,21 +111,35 @@
 }
 \email{clement.bera@vub.ac.be}          %% \email is recommended
 
-\begin{abstract}
+%% Author with two affiliations and emails.
+\author{Eliot Miranda}
+\affiliation{
+   \position{Virtual Machine Architect}
+	%\department{Virtual Machine architect}              %% \department is recommended
+	\institution{Feenk}            %% \institution is required
+	\city{San Francisco}
+  % \state{}
+  % \postcode{}
+	\country{California}                    %% \country is recommended
+}
+\email{eliot.miranda@gmail.com}          %% \email is recommended
 
+\begin{abstract}
+One of the next step to improve the Cog virtual machine, the default virtual machine for multiple programming languages such Pharo, Squeak and Newspeak, is to decrease the garbage collection pause time. A benchmarking infrastructure and reference garbage collection algorithm implementations are required to evaluate the performance of a new algorithm and compare it. Cog features a Mark-Compact algorithm, used in production, and we introduced a Mark-Sweep algorithm a the two reference algorithms. Benchmarks are built using two different approaches. Firstly, we turned code from memory intensive deployed applications into benchmarks to simulate real-world applications. Secondly, we built a configurable benchmark which simulates an application with different heap properties to be able to stress specific aspects of the memory management. We then evaluated the two reference algorithms on the infrastructure built to have reference benchmark results.
 \end{abstract}
 
-\keywords{Garbage Collector, Virtual machine, Managed runtime}  %% \keywords are mandatory in final camera-ready submission
+\keywords{Benchmark, Garbage Collector, Virtual machine, Managed runtime}  %% \keywords are mandatory in final camera-ready submission
 
 \maketitle
 
 \section{Introduction}
 \label{sec:intro}
 
-Trying to build a more advanced algo, need to measure..
-ref impl to compare
-Try to build benchmarks 
--> 
+- Trying to build a more advanced full GC algo, need to measure..
+- ref impl to compare
+- Try to build benchmarks, both from real app and to stress specific aspects.
+- We end by applying the bench on reference impl to validate the behavior is as expected.
+
 
 \section{Reference Implementations}
 \label{sec:ref}
@@ -143,7 +157,7 @@ Cog's Mark-Compact algorithm, named \emph{SpurSweeper}, is a sweep-only algorith
 \subsection{Snapshot discussion}
 Problem with the snapshot. and non compacting algo. Mention G1 and partial compaction too.
 
-=> HybridCompactor
+=> HybridCompactor solution.
 
 \section{Building Macro-benchmarks}
 \label{sec:bench}
