@@ -135,7 +135,7 @@ One of the next step to improve the Cog virtual machine, the default virtual mac
 \section{Introduction}
 \label{sec:intro}
 
-The Cog virtual machine (VM), the default VM for multiple programming languages such Pharo, Squeak and Newspeak, currently features in production a stop-the-world Mark-Compact algorithm as the full garbage collector (GC) algorithm. The algorithm has a high throughput but a high pause time during which the application is not responsive (the GC interrupts the application for multiple seconds on modern Macbooks starting from multiple Gbs heaps). For interactive applications, a new algorithm is required with a smaller pause time.
+The Cog virtual machine (VM), the default VM for multiple programming languages such Pharo \cite{PharoByExample}, Squeak \cite{SqueakByExample} and Newspeak \cite{NewspeakOopsla}, currently features in production a stop-the-world Mark-Compact algorithm as the full garbage collector (GC) algorithm. The algorithm has a high throughput but a high pause time during which the application is not responsive (the GC interrupts the application for multiple seconds on modern Macbooks starting from multiple Gbs heaps). For interactive applications, a new algorithm is required with a smaller pause time.
 
 Building and tuning a new GC algorithm requires to evaluate its behavior. A benchmarking infrastructure is required to do so. To build GC benchmarks, we took two approaches. 
 
@@ -149,26 +149,62 @@ We evaluated both algorithm on the benchmarks we built to provide results of the
 
 We conclude the paper by discussing some related work, the GC benchmarks suites for Java and the ACDC benchmarks, and some future work.
 
-\section{Building Macro-benchmarks}
+\section{Building Benchmarks}
 \label{sec:bench}
 
-2 directions. One is to build real benchs from real apps. Same direction as Dacapo... To be ported ?
+To build GC benchmarks, we took two approaches. We asked companies for their deployed memory intensive applications and turned them into benchmarks. Multiple benchmarks in this category include closed-source code. In Section \ref{sec:mooseBench}, we describe how we turned a specific application into a benchmark with the help of the company (this specific benchmark does not include closed-source code). Then, to stress the GC on specific aspects, we built a configurable benchmark that based on the configuration emulates heaps with different properties. 
 
 \subsection{Moose benchmark}
 \label{sec:mooseBench}
 
-Explain all the phases
+Part of the business of Feenk consists in analyzing softwares. To do so, the application parses a mse file into a model, performs some analysis, and then releases the model and generates analysis results. For business, the application analyzes closed-sourced application of companies. To build an open-source benchmark, we analyse open-source applications instead of closed-source ones.
 
-> Growing heap:[GCMooseBench new benchLoadFromMSE: b wildfly].
-benchLoadFromMSE: fileName
-mooseModel := MooseModel new importFromMSEStream: (StandardFileStream readOnlyFileNamed: fileName)
-[(GCMooseBench withMooseModel: model) benchExpandProperties]. "optional, increases drastically the model size"
-benchExpandProperties	allProperties :=  mooseModel entityStorage collect: [ :anEntity |     		anEntity mooseInterestingEntity complexPropertyPragmas collect: [ :aPragma |        		[ (anEntity mooseInterestingEntity perform: aPragma methodSelector) ] on: Error do: ['error'] ] ].
-> Stable heap:[(GCMooseBench withMooseModel: model) benchAnalysisPyramid].
-benchAnalysisPyramid	mooseModel overviewPyramidMetrics.[(GCMooseBench withMooseModel: model) benchAnalysisSymbol].
-benchAnalysisSymbol	mooseModel allMethods symbolsUsedInName[(GCMooseBench withMooseModel: model) benchAnalysisDeprecation].
-benchAnalysisDeprecation	mooseModel allModelClasses select: [ :each |    		(each isAnnotatedWith: 'Deprecated') and: [ each clientTypes notEmpty ] ].> Shrinking heap:[(GCMooseBench withMooseModel: model) benchRelease].
-benchRelease	mooseModel := nil.	allProperties := nil.	3 timesRepeat: [Smalltalk garbageCollect].
+We built six different benchmarks that falls into three categories: growing, stable and shrinking heaps. The benchmarks were built on top of the stable Moose image\footnote{http://www.moosetechnology.org/}.
+
+\paragraph{Growing heap.} The growing heap benchmarks increase the heap size as they are performed, mainly creating objects. We built two benchmarks:
+\begin{itemize}
+	\item \emph{LoadFromMSE}: parses a mse file into a moose model, effectively loading a graph of object. This is the only benchmark not taking a moose model as a parameter.
+	\item \emph{ExpandProperties}: computes all interesting properties of the model and store them, effectively loading a graph of object connected in many points to the original graph. 
+\end{itemize}
+
+\begin{code}
+GCMooseBench >> benchLoadFromMSE: fileName
+	mooseModel := MooseModel new importFromMSEStream: (StandardFileStream readOnlyFileNamed: fileName)
+
+GCMooseBench >>benchExpandProperties
+	allProperties :=  mooseModel entityStorage collect: [ :anEntity | 
+    		anEntity mooseInterestingEntity complexPropertyPragmas collect: [ :aPragma |
+        		[ (anEntity mooseInterestingEntity perform: aPragma methodSelector) ] on: Error do: ['error'] ] ].
+\end{code}
+
+\paragraph{Stable heap.} The stable heap benchmarks perform random memory accesses in a heap which size remains approximately the same. We built three benchmarks:
+
+\begin{itemize}
+	\item \emph{Pyramid}: computes an overview of the pyramid metrics of the software.
+	\item \emph{Symbol}: computes all the symbols used in name. \todo{check}
+	\item \emph{Deprecation}: computes all the deprecated code.
+\end{itemize}
+
+\begin{code}
+benchAnalysisPyramid
+	mooseModel overviewPyramidMetrics.
+
+benchAnalysisSymbol
+	mooseModel allMethods symbolsUsedInName
+
+benchAnalysisDeprecation
+	mooseModel allModelClasses select: [ :each |
+    		(each isAnnotatedWith: 'Deprecated') and: [ each clientTypes notEmpty ] ].
+\end{code}
+
+\paragraph{Shrinking heap.} The shrinking heap benchmark frees part of the heap and performs a GC. We built only one benchmark, \emph{Release}, which removes references to the graph of objects and performs three garbage collections.
+
+\begin{code}
+benchRelease
+	mooseModel := nil.
+	allProperties := nil.
+	3 timesRepeat: [Smalltalk garbageCollect].
+\end{code}
 
 \subsection{Configurable benchmark}
 \label{sec:confBench}
@@ -183,16 +219,21 @@ To evaluate new full GC algorithms, we need to compare it against existing algor
 
 \subsection{Mark-Compact}
 
-Cog's Mark-Compact algorithm, named \emph{SpurPlanningCompactor}, implements the classic planning compaction algorithm for Spur.  It uses the fact that there is room for a forwarding pointer in all objects to store the eventual position of an object in the first field. It therefore first locates a large free chunk, or eden or a memory segment, to use as the savedFirstFieldsSpace, which it uses to store the first fields of objects that will be compacted. It then makes at least three passes through the heap.The first pass plans where live movable objects will go, copying their first field to the next slot in savedFirstFieldsSpace, and setting their forwarding pointer to point to their eventual location (see planCompactSavingForwarders). The second pass updates all pointers in live pointer objects to point to objects' final destinations, including the fields in savedFirstFieldsSpace (see updatePointers and updatePointersInMobileObjects). The third pass moves objects to their final positions, unmarking objects, and restoring saved first fields as it does so (see copyAndUnmark: and copyAndUnmarkMobileObjects). If the forwarding fields of live objects in the to-be-moved portion of the entire heap won't fit in savedFirstFieldsSpace, then additional passes can be made until the entire heap has been compacted.  When snapshotting multiple passes are made, but when doing a normal GC only one pass is made.Each pass uses a three finger algorithm, a simple extension of the classic two finger algorithm with an extra finger used to identify the lowest pinned object between the to and from fingers.  Objects are moved down, starting at the first free object or chunk, provided that they fit below the lowest pinned object above the to finger.  When an object won't fit the to finger is moved above the pinned object and the third finger is reset to the next pinned object below the from finger, if any.
+Cog's Mark-Compact algorithm, named \emph{SpurPlanningCompactor}, implements the classic planning compaction algorithm for Spur.  It uses the fact that there is room for a forwarding pointer in all objects to store the eventual position of an object in the first field. It therefore first locates a large free chunk, or eden or a memory segment, to use as the savedFirstFieldsSpace, which it uses to store the first fields of objects that will be compacted. It then makes at least three passes through the heap.
+
+The first pass plans where live movable objects will go, copying their first field to the next slot in savedFirstFieldsSpace, and setting their forwarding pointer to point to their eventual location (see planCompactSavingForwarders). The second pass updates all pointers in live pointer objects to point to objects' final destinations, including the fields in savedFirstFieldsSpace (see updatePointers and updatePointersInMobileObjects). The third pass moves objects to their final positions, unmarking objects, and restoring saved first fields as it does so (see copyAndUnmark: and copyAndUnmarkMobileObjects). If the forwarding fields of live objects in the to-be-moved portion of the entire heap won't fit in savedFirstFieldsSpace, then additional passes can be made until the entire heap has been compacted.  When snapshotting multiple passes are made, but when doing a normal GC only one pass is made.
+
+Each pass uses a three finger algorithm, a simple extension of the classic two finger algorithm with an extra finger used to identify the lowest pinned object between the to and from fingers.  Objects are moved down, starting at the first free object or chunk, provided that they fit below the lowest pinned object above the to finger.  When an object won't fit the to finger is moved above the pinned object and the third finger is reset to the next pinned object below the from finger, if any.
 
 \subsection{Mark-Sweep}
 
-Cog's Mark-Compact algorithm, named \emph{SpurSweeper}, is a sweep-only algorithm, setting the compactor to SpurSweeper effectively changes the fullGC to a mark-sweep non-moving algorithm. SpurSweeper is a reference implementation if one wants to evaluate GC performance and compare it to a Mark-Sweep. It's also the only non-moving GC available right now which can be convenient for some experiments. One of the main reason why it was implemented is because advanced compaction algorithm includes a sweep phase (See SelectiveCompactor for example) and SpurSweeper allows to debug the sweep phase separately.
+Cog's Mark-Compact algorithm, named \emph{SpurSweeper}, is a sweep-only algorithm, setting the compactor to SpurSweeper effectively changes the fullGC to a mark-sweep non-moving algorithm. It iterates over all old space in linear order. Each time an unmarked object or a free chunk is met, it coalesces it with subsequent ones and updates the free lists with a new larger free chunk. 
 
 \subsection{Snapshot discussion}
-Problem with the snapshot. and non compacting algo. Mention G1 and partial compaction too.
 
-=> HybridCompactor solution.
+On top of the Cog VM, snapshots can be performed to persist the given state of the heap. Since snapshots are persisted, they should use a low amount of memory to avoid using too many bytes on disk. Non compacting algorithms, such as the Mark-Sweep, or algorithms compacting only part of the heap, such as garbage first~\cite{G1}, are a problem in this context. The heap, when collected by the Mark-Sweep, has a lot of free chunks when the heap size varies a lot leading to a large snapshot. However, non compacting have also interesting advantages (lower garbage collection pause time for example). 
+
+To be able to have a garbage collector with a low pause time and still be able to perform efficiently snapshots, we design a hybrid compactor solution. The VM tells the compactor if the garbage collection is performed for snapshot or not, and the compactor chooses to apply one algorithm or the other to have low compaction pause time or to snapshot with a low memory footprint.
 
 \section{Reference Results}
 \label{sec:valid}
@@ -202,11 +243,11 @@ It would be nice to evaluate both Sweeper and Planning on what we've just discus
 \section{Related and Future Work}
 
 \paragraph{GC benchmark suite.}
-Dacapo + see ref in Dacapo.
+Dacapo + see ref in Dacapo. \cite{DacapoBench}
 \todo{Sophie}
 
 \paragraph{ACDC.}
-ACDC-js (Sophie you write a paragraph on that.
+ACDC-js (Sophie you write a paragraph on that. \cite{ACDCJS}
 
 \paragraph{Future work: more benchmarks.}
 need to add more benchmarks based on Dacapo ?
