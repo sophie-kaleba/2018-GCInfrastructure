@@ -89,7 +89,7 @@
 \affiliation{
   %\position{Position1}
   \department{Master student}              %% \department is recommended
-  \institution{Université de Lille 1}            %% \institution is required
+  \institution{Universit\'e de Lille 1}            %% \institution is required
  % \streetaddress{Street1 Address1}
   \city{Lille}
   %\state{France}
@@ -125,7 +125,7 @@
 \email{eliot.miranda@gmail.com}          %% \email is recommended
 
 \begin{abstract}
-One of the next step to improve the Cog virtual machine, the default virtual machine for multiple programming languages such Pharo, Squeak and Newspeak, is to decrease the garbage collection pause time. A benchmarking infrastructure and reference garbage collection algorithm implementations are required to evaluate the performance of a new algorithm and compare it. Cog features a Mark-Compact algorithm, used in production, and we introduced a Mark-Sweep algorithm a the two reference algorithms. Benchmarks are built using two different approaches. Firstly, we turned code from memory intensive deployed applications into benchmarks to simulate real-world applications. Secondly, we built a configurable benchmark which simulates an application with different heap properties to be able to stress specific aspects of the memory management. We then evaluated the two reference algorithms on the infrastructure built to have reference benchmark results.
+One of the next step to improve the Cog virtual machine, the default virtual machine for multiple programming languages such Pharo, Squeak and Newspeak, is to decrease the garbage collection pause time. A benchmarking infrastructure and reference garbage collection algorithm implementations are required to evaluate the performance of a new algorithm and compare it. Cog features a Mark-Compact algorithm, used in production, and we introduced a Mark-Sweep algorithm a \sk{a word or something is missing here} the two reference algorithms. Benchmarks are built using two different approaches. Firstly, we turned code from memory intensive deployed applications into benchmarks to simulate real-world applications. Secondly, we built a configurable benchmark which simulates an application with different heap properties to be able to stress specific aspects of the memory management. We then evaluated the two reference algorithms on the infrastructure built to have reference benchmark results.
 \end{abstract}
 
 \keywords{Benchmark, Garbage Collector, Virtual machine, Managed runtime}  %% \keywords are mandatory in final camera-ready submission
@@ -139,9 +139,10 @@ The Cog virtual machine (VM), the default VM for multiple programming languages 
 
 Building and tuning a new GC algorithm requires to evaluate its behavior. A benchmarking infrastructure is required to do so. To build GC benchmarks, we took two approaches. 
 
-Firstly, we contacted multiple companies using the Cog VM in production on memory intensive application (>1Gb heaps) and built benchmarks out of their deployed application. As an example, we will discuss in the paper in Section \ref{sec:mooseBench} the Moose benchmarks implemented in collaboration with Feenk\footnote{https://feenk.com/}. Part of the business of Feenk consists in analysing software written in multiple programming languages using the open-source framework Moose~\cite{MoosePaper1,MooseBook1}. Using Moose, the application parses the software to analyse into a model, performs analysis on it and lastly release the model. This behavior was turned into three benchmarks, growing, accessing and shrinking the heap. 
+Firstly, we contacted multiple companies using the Cog VM in production on memory intensive application (>1Gb heaps) and built benchmarks out of their deployed application. As an example, we will discuss in the paper in Section \ref{sec:mooseBench} the Moose benchmarks implemented in collaboration with Feenk\footnote{https://feenk.com/}. Part of the business of Feenk consists in analysing software written in multiple programming languages using the open-source framework Moose~\cite{MoosePaper1,MooseBook1}. Using Moose, the application parses the software to analyse into a model, performs analysis on it and lastly releases the model. This behavior was turned into three benchmarks, growing, accessing and shrinking the heap. 
 
-Secondly, \todo{Sophie :-) a few sentence on your bench + ref} \ref{sec:confBench}
+Secondly, we implemented a configurable benchmark: the idea is to set-up specific heap structures that will stress the garbage collector. A set of specific options is available to the user to tune the type of allocated objects and some of their features. These options can be associated with different heap states: growing, stable or shrinking, like in our other approach. \todo{fin a ref}
+This implementation and the use-cases are detailed in Section \ref{sec:confBench}
 
 To evaluate a new algorithm, we also need to compare it to reference implementations. The Cog VM features a Mark-Compact algorithm in production. The compaction phase is quite specific since it moves objects in memory and spend time updating references. In addition to this algorithm, we implemented a Mark-Sweep, which does not move objects in memory and is quicker to perform. Section \ref{sec:ref} details the two implementations.
 
@@ -210,7 +211,13 @@ GCMooseBench >> benchRelease
 \label{sec:confBench}
 
 \todo{Sophie}
-Sophie's section
+describe again what is this bench about
+
+\begin{itemize}
+\item Structure of the heap (allocated objects, their size, their liveness)
+\item State of the heap (growing, stable, shrinking)
+\end{itemize}
+
 
 \section{Reference Implementations}
 \label{sec:ref}
@@ -256,6 +263,9 @@ need to add more benchmarks based on Dacapo ?
 
 \paragraph{Future work: stress GC tests.}
 stress cases from Configurable
+
+\paragraph{Future work: more options.}
+\sk{maybe? I will add options in the configurator soon. Should I mention it here?}
 
 %% Bibliography
 \bibliographystyle{alpha}
