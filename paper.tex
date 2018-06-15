@@ -89,7 +89,7 @@
 \affiliation{
   %\position{Position1}
   \department{Master student}              %% \department is recommended
-  \institution{Université de Lille 1}            %% \institution is required
+  \institution{Universit\'e de Lille 1}            %% \institution is required
  % \streetaddress{Street1 Address1}
   \city{Lille}
   %\state{France}
@@ -125,7 +125,7 @@
 \email{eliot.miranda@gmail.com}          %% \email is recommended
 
 \begin{abstract}
-One of the next step to improve the Cog virtual machine, the default virtual machine for multiple programming languages such Pharo, Squeak and Newspeak, is to decrease the garbage collection pause time. A benchmarking infrastructure and reference garbage collection algorithm implementations are required to evaluate the performance of a new algorithm and compare it. Cog features a Mark-Compact algorithm, used in production, and we introduced a Mark-Sweep algorithm a the two reference algorithms. Benchmarks are built using two different approaches. Firstly, we turned code from memory intensive deployed applications into benchmarks to simulate real-world applications. Secondly, we built a configurable benchmark which simulates an application with different heap properties to be able to stress specific aspects of the memory management. We then evaluated the two reference algorithms on the infrastructure built to have reference benchmark results.
+One of the next step to improve the Cog virtual machine, the default virtual machine for multiple programming languages such Pharo, Squeak and Newspeak, is to decrease the garbage collection pause time. A benchmarking infrastructure and reference garbage collection algorithm implementations are required to evaluate the performance of a new algorithm and compare it. Cog features a Mark-Compact algorithm, used in production, and we introduced a Mark-Sweep algorithm a \sk{a word or something is missing here} the two reference algorithms. Benchmarks are built using two different approaches. Firstly, we turned code from memory intensive deployed applications into benchmarks to simulate real-world applications. Secondly, we built a configurable benchmark which simulates an application with different heap properties to be able to stress specific aspects of the memory management. We then evaluated the two reference algorithms on the infrastructure built to have reference benchmark results.
 \end{abstract}
 
 \keywords{Benchmark, Garbage Collector, Virtual machine, Managed runtime}  %% \keywords are mandatory in final camera-ready submission
@@ -139,9 +139,10 @@ The Cog virtual machine (VM), the default VM for multiple programming languages 
 
 Building and tuning a new GC algorithm requires to evaluate its behavior. A benchmarking infrastructure is required to do so. To build GC benchmarks, we took two approaches. 
 
-Firstly, we contacted multiple companies using the Cog VM in production on memory intensive application (>1Gb heaps) and built benchmarks out of their deployed application. As an example, we will discuss in the paper in Section \ref{sec:mooseBench} the Moose benchmarks implemented in collaboration with Feenk\footnote{https://feenk.com/}. Part of the business of Feenk consists in analysing software written in multiple programming languages using the open-source framework Moose~\cite{MoosePaper1,MooseBook1}. Using Moose, the application parses the software to analyse into a model, performs analysis on it and lastly release the model. This behavior was turned into three benchmarks, growing, accessing and shrinking the heap. 
+Firstly, we contacted multiple companies using the Cog VM in production on memory intensive application (>1Gb heaps) and built benchmarks out of their deployed application. As an example, we will discuss in the paper in Section \ref{sec:mooseBench} the Moose benchmarks implemented in collaboration with Feenk\footnote{https://feenk.com/}. Part of the business of Feenk consists in analysing software written in multiple programming languages using the open-source framework Moose~\cite{MoosePaper1,MooseBook1}. Using Moose, the application parses the software to analyse into a model, performs analysis on it and lastly releases the model. This behavior was turned into three benchmarks, growing, accessing and shrinking the heap. 
 
-Secondly, \todo{Sophie :-) a few sentence on your bench + ref} \ref{sec:confBench}
+Secondly, we implemented a configurable benchmark: the idea is to set-up specific heap structures that will stress the garbage collector. A set of specific options is available to the user to tune the type of allocated objects and some of their features. These options can be associated with different heap states: growing, stable or shrinking, like in our other approach. \todo{fin a ref}
+This implementation and the use-cases are detailed in Section \ref{sec:confBench}
 
 To evaluate a new algorithm, we also need to compare it to reference implementations. The Cog VM features a Mark-Compact algorithm in production. The compaction phase is quite specific since it moves objects in memory and spend time updating references. In addition to this algorithm, we implemented a Mark-Sweep, which does not move objects in memory and is quicker to perform. Section \ref{sec:ref} details the two implementations.
 
@@ -159,58 +160,33 @@ To build GC benchmarks, we took two approaches. We asked companies for their dep
 
 Part of the business of Feenk consists in analyzing softwares. To do so, the application parses a mse file into a model, performs some analysis, and then releases the model and generates analysis results. For business, the application analyzes closed-sourced application of companies. To build an open-source benchmark, we analyse open-source applications instead of closed-source ones.
 
-We built six different benchmarks that falls into three categories: growing, stable and shrinking heaps. The benchmarks were built on top of the stable Moose image\footnote{http://www.moosetechnology.org/}.
+We built four different benchmarks that falls into three categories: growing, stable and shrinking heaps. The benchmarks were built on top of the stable Moose image\footnote{http://www.moosetechnology.org/}.
 
 \paragraph{Growing heap.} The growing heap benchmarks increase the heap size as they are performed, mainly creating objects. We built two benchmarks:
 \begin{itemize}
 	\item \emph{LoadFromMSE}: parses a mse file into a moose model, effectively loading a graph of object. This is the only benchmark not taking a moose model as a parameter.
-	\item \emph{ExpandProperties}: computes all interesting properties of the model and store them, effectively loading a graph of object connected in many points to the original graph. 
+	\item \emph{ExpandProperties}: computes all interesting properties of the model, discard properties rarely used or consuming too much memory, cache common properties not using too much memory. It effectively loads a graph of object connected in many points to the original graph. 
 \end{itemize}
 
-\begin{code}
-GCMooseBench >> benchLoadFromMSE: fileName
-	mooseModel := MooseModel new importFromMSEStream: (StandardFileStream readOnlyFileNamed: fileName)
-
-GCMooseBench >>benchExpandProperties
-	allProperties :=  mooseModel entityStorage collect: [ :anEntity | 
-    		anEntity mooseInterestingEntity complexPropertyPragmas collect: [ :aPragma |
-        		[ (anEntity mooseInterestingEntity perform: aPragma methodSelector) ] on: Error do: ['error'] ] ].
-\end{code}
-
-\paragraph{Stable heap.} The stable heap benchmarks perform random memory accesses in a heap which size remains approximately the same. We built three benchmarks:
+\paragraph{Stable heap.} The stable heap benchmarks perform random memory accesses in a heap which size remains approximately the same. We built one benchmark:
 
 \begin{itemize}
-	\item \emph{Pyramid}: computes an overview of the pyramid metrics of the software.
-	\item \emph{Symbol}: computes all the words inside a method name to display a name cloud.
-	\item \emph{Deprecation}: computes all the deprecated code.
+	\item \emph{ExpandPropertiesWithCache}: computes all interesting properties of the model, common properties with low memory footprint are already cached and other properties are discarded once computed.
 \end{itemize}
 
-\begin{code}
-GCMooseBench >> benchAnalysisPyramid
-	mooseModel overviewPyramidMetrics.
-
-GCMooseBench >> benchAnalysisSymbol
-	mooseModel allMethods symbolsUsedInName
-
-GCMooseBench >> benchAnalysisDeprecation
-	mooseModel allModelClasses select: [ :each |
-    		(each isAnnotatedWith: 'Deprecated') and: [ each clientTypes notEmpty ] ].
-\end{code}
-
 \paragraph{Shrinking heap.} The shrinking heap benchmark frees part of the heap and performs a GC. We built only one benchmark, \emph{Release}, which removes references to the graph of objects and performs three garbage collections.
-
-\begin{code}
-GCMooseBench >> benchRelease
-	mooseModel := nil.
-	allProperties := nil.
-	3 timesRepeat: [Smalltalk garbageCollect].
-\end{code}
 
 \subsection{Configurable benchmark}
 \label{sec:confBench}
 
 \todo{Sophie}
-Sophie's section
+describe again what is this bench about
+
+\begin{itemize}
+\item Structure of the heap (allocated objects, their size, their liveness)
+\item State of the heap (growing, stable, shrinking)
+\end{itemize}
+
 
 \section{Reference Implementations}
 \label{sec:ref}
@@ -238,6 +214,67 @@ To be able to have a garbage collector with a low pause time and still be able t
 \section{Reference Results}
 \label{sec:valid}
 
+We evaluated both reference algorithms on the benchmarks built.
+
+\subsection{Moose Benchmarks}
+
+\begin{figure*}[thb]
+	\centering
+    	\begin{subfigure}[b]{.48\textwidth}
+	\includegraphics[width=\linewidth]{figures/load} 
+	\subcaption{Release\vspace{0.5cm}}
+   	\end{subfigure} \hspace{0.03\textwidth} \begin{subfigure}[b]{.48\textwidth}
+	\includegraphics[width=\linewidth]{figures/prop} 
+	\subcaption{ExpandProperties\vspace{0.5cm}}
+   	\end{subfigure}
+	
+	\begin{subfigure}[b]{.48\textwidth}
+	\includegraphics[width=\linewidth]{figures/propCache} 
+	\subcaption{ExpandPropertiesWithCache}
+   	\end{subfigure} \hspace{0.03\textwidth}  \begin{subfigure}[b]{.48\textwidth}
+	\includegraphics[width=\linewidth]{figures/release} 
+	\subcaption{release}
+   	\end{subfigure}
+\caption{Moose benchmark results piled up.}
+\label{MooseRes1}
+\end{figure*}
+
+\begin{figure*}[thb]
+\begin{tabular}{|c|c|c|c|c|c|c|c|}
+   \hline
+  & & Total   & Scavenge  & Total Full  & Compaction  & Initial  & Final \\
+ Benchmark & &  Exec. time &  time & GC time &  time &  Heap size & Heap size \\
+  & &  (ms) &  (ms) & (ms) &  (ms) &  (Mb) &  (Mb) \\
+   \hline
+   \multirow{2}{*}{Load} & Sweep 	& 159821 $\pm$ 2218 &	73599 $\pm$ 1281 	& 10863 $\pm$ 726 	&1398 $\pm$ 091 	& 193 $\pm$ 0 	& 959 $\pm$ 9.69 \\
+    				    & Compact 	& 162305 $\pm$ 2790 &	72150 $\pm$ 0782 	& 14091 $\pm$ 972 	&4661 $\pm$ 289 	& 193 $\pm$ 0 	& 909 $\pm$ 9.69 \\
+   \hline
+   \multirow{2}{*}{ExpandProperties} 	& Sweep 		& 232940 $\pm$ 01287 &	55497 $\pm$ 0238 	& 12240 $\pm$ 285 	&1178 $\pm$ 6.66 	& 959 $\pm$ 9.69 & 1888 $\pm$ 0 \\
+    				    			& Compact 	& 183314 $\pm$ 13090 &	53165 $\pm$ 2343 	& 12496 $\pm$ 197 	&3775 $\pm$ 0108 	& 909 $\pm$ 9.69 & 1938 $\pm$ 0 \\
+   \hline
+   ExpandProperties 		& Sweep 		& 510013 $\pm$ 05812 &	64234 $\pm$ 0823 	& 23225 $\pm$ 100 	&2011 $\pm$ 10 	& 1888 $\pm$ 0 	& 1888 $\pm$ 0 \\
+   WithCache  			& Compact 	& 408169 $\pm$ 20444 &	64492 $\pm$ 1234 	& 0 $\pm$ 0 		&0 $\pm$ 0 		& 1938 $\pm$ 0 		& 1938 $\pm$ 0 \\
+   \hline
+   \multirow{2}{*}{Release} 	& Sweep 		& 0606 $\pm$ 16 		&	0 $\pm$ 0 	& 0605 $\pm$ 16 	&316 $\pm$ 12 		& 1888 $\pm$ 0 	& 534 $\pm$ 58 \\
+    				    		& Compact 	& 1092 $\pm$ 02 	&	0 $\pm$ 0 	& 1092 $\pm$ 01 		&806 $\pm$ 03 			& 0193 $\pm$ 0 		& 193 $\pm$ 00 \\
+   \hline
+\end{tabular} 
+\caption{Moose benchmark results with standard errors.}
+\label{MooseRes2}
+\end{figure*}
+
+We evaluated the Moose benchmarks using the reference Mark-Compact and Mark-Sweep algorithm. The results are shown in Figure \ref{MooseRes1} and \ref{MooseRes2}. In the results, the compaction time includes the time spent in the compact phase in the Mark-Compact and in the sweep phase in the Mark-Sweep. Total full GC time is the total time spent in full GCs, including the compaction time. Scavenge time is the time spent in scavenges, \emph{i.e.,} garbage collection of young objects only. Total execution time is the total execution time, including scavenge and full GC time.
+
+\paragraph{Load.} The Load benchmark grows the memory by 750 Mb with Sweep and by 700 Mb with Compact. Compaction time is smaller for the sweep algorithm, making the benchmark a little bit faster in the Mark-Sweep, which is to be expected since Sweep does not need to waste time updating pointers because objects are not moved in memory.
+
+\paragraph{ExpandProperties.} The ExpandProperties benchmark grows the memory by around 1 Gb. Compaction time is a little bit better with the sweep algorithm as for the previous benchmark, but execution time is much worse. We believe this is due to worse locality of objects.
+
+\paragraph{ExpandPropertiesWithCache.} The ExpandPropertiesWithCache benchmark does not increase the overall memory size. Since the compacting GC has compacted the heap before starting the benchmark, there is enough room to allocate the large objects (large objects are allocated directly in old space) required by the benchmark and there is no need for a full GC during the benchmark. However, with the sweep algorithm, there are multiple small available memory chunks which are not big enough to hold all the requested large objects, so a full GC is required. In addition, execution time is worse, as for the previous benchmark.
+
+\paragraph{Release.} The Release benchmark releases all the graphs. With the compacting GC, memory goes back to its original size. With Sweep, multiple memory segments are left with a few live objects, forbidding the OS to reclaim those segments. Hence, the memory decreases drastically, but not to the original size. Compaction time is much faster with Sweep, but as we have discussed, for less efficiency.
+
+\subsection{Sophie section}
+
 It would be nice to evaluate both Sweeper and Planning on what we've just discussed.
 
 I think we show exec time, full gc time, scavenge time, compaction time.
@@ -256,6 +293,9 @@ need to add more benchmarks based on Dacapo ?
 
 \paragraph{Future work: stress GC tests.}
 stress cases from Configurable
+
+\paragraph{Future work: more options.}
+\sk{maybe? I will add options in the configurator soon. Should I mention it here?}
 
 %% Bibliography
 \bibliographystyle{alpha}
