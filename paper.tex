@@ -214,23 +214,29 @@ We evaluated both reference algorithms on the benchmarks built.
 
 \subsection{Moose Benchmarks}
 
+
+%
 \begin{figure*}[thb]
 	\centering
-    	\begin{subfigure}[b]{.48\textwidth}
+    
+    \begin{subfigure}[b]{.48\textwidth}
 	\includegraphics[width=\linewidth]{figures/load} 
-	\subcaption{Load\vspace{0.5cm}}
-   	\end{subfigure} \hspace{0.03\textwidth} \begin{subfigure}[b]{.48\textwidth}
+	\caption{Load\vspace{0.5cm}}
+   	\end{subfigure}\hspace{0.03\textwidth}% 
+   	\begin{subfigure}[b]{.48\textwidth}
 	\includegraphics[width=\linewidth]{figures/prop} 
-	\subcaption{ExpandProperties\vspace{0.5cm}}
-   	\end{subfigure}
-	
+	\caption{ExpandProperties\vspace{0.5cm}}
+   	\end{subfigure}	
 	\begin{subfigure}[b]{.48\textwidth}
 	\includegraphics[width=\linewidth]{figures/propCache} 
-	\subcaption{ExpandPropertiesWithCache}
-   	\end{subfigure} \hspace{0.03\textwidth}  \begin{subfigure}[b]{.48\textwidth}
+	\caption{ExpandPropertiesWithCache}
+	\end{subfigure\hspace{0.03\textwidth}}%
+	   	\begin{subfigure}[b]{.48\textwidth}
 	\includegraphics[width=\linewidth]{figures/release} 
-	\subcaption{release}
+	\caption{release}
    	\end{subfigure}
+
+   	   	    	
 \caption{Moose benchmark results piled up.}
 \label{MooseRes1}
 \end{figure*}
@@ -269,7 +275,7 @@ We evaluated the Moose benchmarks using the reference Mark-Compact and Mark-Swee
 
 \paragraph{Release.} The Release benchmark releases all the graphs. With the compacting GC, memory goes back to its original size. With Sweep, multiple memory segments are left with a few live objects, forbidding the OS to reclaim those segments. Hence, the memory decreases drastically, but not to the original size. Compaction time is much faster with Sweep, but as we have discussed, for less efficiency.
 
-\subsection{Sophie section}
+\subsection{Configurable benchmark}
 
 \todo{Sophie}
 It would be nice to evaluate both Sweeper and Planning on what we've just discussed.
