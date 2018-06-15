@@ -142,6 +142,7 @@ Building and tuning a new GC algorithm requires to evaluate its behavior. A benc
 Firstly, we contacted multiple companies using the Cog VM in production on memory intensive application (>1Gb heaps) and built benchmarks out of their deployed application. As an example, we will discuss in the paper in Section \ref{sec:mooseBench} the Moose benchmarks implemented in collaboration with Feenk\footnote{https://feenk.com/}. Part of the business of Feenk consists in analysing software written in multiple programming languages using the open-source framework Moose~\cite{MoosePaper1,MooseBook1}. Using Moose, the application parses the software to analyse into a model, performs analysis on it and lastly releases the model. This behavior was turned into three benchmarks, growing, accessing and shrinking the heap. 
 
 Secondly, we implemented a configurable benchmark: the idea is to set-up specific heap structures that will stress the garbage collector. A set of specific options is available to the user to tune the type of allocated objects and some of their features. These options can be associated with different heap states: growing, stable or shrinking, like in our other approach. \todo{fin a ref}
+\sk{add the case we benchmarked with this approach}
 This implementation and the use-cases are detailed in Section \ref{sec:confBench}
 
 To evaluate a new algorithm, we also need to compare it to reference implementations. The Cog VM features a Mark-Compact algorithm in production. The compaction phase is quite specific since it moves objects in memory and spend time updating references. In addition to this algorithm, we implemented a Mark-Sweep, which does not move objects in memory and is quicker to perform. Section \ref{sec:ref} details the two implementations.
@@ -152,6 +153,7 @@ We conclude the paper by discussing some related work, the GC benchmarks suites 
 
 \section{Building Benchmarks}
 \label{sec:bench}
+\sk{isn't it weird to introduce the built benchmarks without explaining *why* they were chosen? Like, why growing, stable, shrinking is significant regarding garbage collection? same for my 3 benchs, why would I chose those 3 bench strategies?}
 
 To build GC benchmarks, we took two approaches. We asked companies for their deployed memory intensive applications and turned them into benchmarks. Multiple benchmarks in this category include closed-source code. In Section \ref{sec:mooseBench}, we describe how we turned a specific application into a benchmark with the help of the company (this specific benchmark does not include closed-source code). Then, to stress the GC on specific aspects, we built a configurable benchmark that based on the configuration emulates heaps with different properties. 
 
@@ -175,12 +177,26 @@ We built four different benchmarks that falls into three categories: growing, st
 \subsection{Configurable benchmark}
 \label{sec:confBench}
 
-\todo{Sophie}
-describe again what is this bench about
+Running a new memory management strategy on real-world applications can give a first insight about its performance. Being able to configure a specific set-up, personalized environment, can allow to locally \sk{rephrase} test specific behaviors of the new implementation.
+This configurable benchmarking tool has been implemented to emulate specific heap structures and states to potentially trigger edge cases: the user has available a set of twelve options which can be sorted in two categories:
+
+\paragraph{Heap structure.} A first set of options allows the user to modify the heap structure, i.e.\ the amount and sizes of objects to allocate and the possible interactions with these objects. \todo{maybe structure is not actually a good term}
 
 \begin{itemize}
-\item Structure of the heap (allocated objects, their size, their liveness)
-\item State of the heap (growing, stable, shrinking)
+\item \emph{wantedAllocatedSize:} the cumulated size (in Kb) of objects that will be allocated
+\item \emph{minSize and maxSize:} the minimum and maximum size of objects
+\item \emph{dataObjects, weakStructures, classes, compiledMethods:} the ratio for each of these object types.
+\item \emph{accessObjects:} if set to True, access half of the objects allocated on the heap 
+\item \emph{readOnly:} if set to False, modify half of the objects allocated on the heap upon accessing  
+\end{itemize}
+
+\paragraph{Heap state.} The heap state can also be tuned. Once objects have been allocated on the heap according to the selected options, it is possible whether to allocate more objects (growing heap), to release objects that have been previously allocated (shrinking heap), or to stay in the current state and potentially accessing and modifying objects that have been previously allocated (stable heap). These options echoes the 3 benchmarks depicted in Section \ref{sec:mooseBench}\\
+
+We build three benchmarks out of the potential configurations:
+\begin{itemize}
+\item \emph{FragmentedHeap:} First, objects are allocated one the heap, and some of them are released, leading to a potential memory fragmentation. Then, new objets with a minimum size greater than the new free chunks sizes are allocated.
+\item \emph{LargeObjects:} Only large objets with a size greater than 0xFFFF are allocated on the heap.
+\item \emph{Data0bjects:} The majority of objects that will be allocated on the heap will be Data objects, which only contains integer of a specific size (in this benchmark, one byte)
 \end{itemize}
 
 
