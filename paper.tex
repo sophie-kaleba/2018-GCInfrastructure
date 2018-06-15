@@ -125,7 +125,7 @@
 \email{eliot.miranda@gmail.com}          %% \email is recommended
 
 \begin{abstract}
-One of the next step to improve the Cog virtual machine, the default virtual machine for multiple programming languages such Pharo, Squeak and Newspeak, is to decrease the garbage collection pause time. A benchmarking infrastructure and reference garbage collection algorithm implementations are required to evaluate the performance of a new algorithm and compare it. Cog features a Mark-Compact algorithm, used in production, and we introduced a Mark-Sweep algorithm a \sk{a word or something is missing here} the two reference algorithms. Benchmarks are built using two different approaches. Firstly, we turned code from memory intensive deployed applications into benchmarks to simulate real-world applications. Secondly, we built a configurable benchmark which simulates an application with different heap properties to be able to stress specific aspects of the memory management. We then evaluated the two reference algorithms on the infrastructure built to have reference benchmark results.
+One of the next step to improve the Cog virtual machine, the default virtual machine for multiple programming languages such as Pharo, Squeak and Newspeak, is to decrease the garbage collection pause time. A benchmarking infrastructure and reference garbage collection algorithm implementations are required to evaluate the performance of a new algorithm and compare it. Cog features a Mark-Compact algorithm, used in production, and we introduced a Mark-Sweep algorithm as the two reference algorithms. Benchmarks are built using two different approaches. Firstly, we turned code from memory intensive deployed applications into benchmarks to simulate real-world applications. Secondly, we built a configurable benchmark which simulates an application with different heap properties to be able to stress specific aspects of the memory management. We then evaluated the two reference algorithms on the infrastructure built to have reference benchmark results.
 \end{abstract}
 
 \keywords{Benchmark, Garbage Collector, Virtual machine, Managed runtime}  %% \keywords are mandatory in final camera-ready submission
@@ -218,7 +218,7 @@ We evaluated both reference algorithms on the benchmarks built.
 	\centering
     	\begin{subfigure}[b]{.48\textwidth}
 	\includegraphics[width=\linewidth]{figures/load} 
-	\subcaption{Release\vspace{0.5cm}}
+	\subcaption{Load\vspace{0.5cm}}
    	\end{subfigure} \hspace{0.03\textwidth} \begin{subfigure}[b]{.48\textwidth}
 	\includegraphics[width=\linewidth]{figures/prop} 
 	\subcaption{ExpandProperties\vspace{0.5cm}}
@@ -259,7 +259,7 @@ We evaluated both reference algorithms on the benchmarks built.
 \label{MooseRes2}
 \end{figure*}
 
-We evaluated the Moose benchmarks using the reference Mark-Compact and Mark-Sweep algorithm. The results are shown in Figure \ref{MooseRes1} and \ref{MooseRes2}. In the results, the compaction time includes the time spent in the compact phase in the Mark-Compact and in the sweep phase in the Mark-Sweep. Total full GC time is the total time spent in full GCs, including the compaction time. Scavenge time is the time spent in scavenges, \emph{i.e.,} garbage collection of young objects only. Total execution time is the total execution time, including scavenge and full GC time.
+We evaluated the Moose benchmarks using the reference Mark-Compact and Mark-Sweep algorithm and by analysing the wildfly code base\footnote{http://www.wildfly.org/}. The results are shown in Figure \ref{MooseRes1} and \ref{MooseRes2}. In the results, the compaction time includes the time spent in the compact phase in the Mark-Compact and in the sweep phase in the Mark-Sweep. Total full GC time is the total time spent in full GCs, including the compaction time. Scavenge time is the time spent in scavenges, \emph{i.e.,} garbage collection of young objects only. Total execution time is the total execution time, including scavenge and full GC time.
 
 \paragraph{Load.} The Load benchmark grows the memory by 750 Mb with Sweep and by 700 Mb with Compact. Compaction time is smaller for the sweep algorithm, making the benchmark a little bit faster in the Mark-Sweep, which is to be expected since Sweep does not need to waste time updating pointers because objects are not moved in memory.
 
