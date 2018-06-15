@@ -153,7 +153,7 @@ We conclude the paper by discussing some related work, the GC benchmarks suites 
 
 \section{Building Benchmarks}
 \label{sec:bench}
-\sk{isn't it weird to introduce the built benchmarks without explaining *why* they were chosen? Like, why growing, stable, shrinking is significant regarding garbage collection? same for my 3 benchs, why would I chose those 3 bench strategies?}
+\sk{isn't it weird to introduce the built benchmarks without explaining *why* they were chosen? Like, why growing, stable, shrinking is significant regarding garbage collection? same for my 3 benchs, why would I chose those 3 bench strategies? I know it is kind of explained in the result section but maybe it is a bit late}
 
 To build GC benchmarks, we took two approaches. We asked companies for their deployed memory intensive applications and turned them into benchmarks. Multiple benchmarks in this category include closed-source code. In Section \ref{sec:mooseBench}, we describe how we turned a specific application into a benchmark with the help of the company (this specific benchmark does not include closed-source code). Then, to stress the GC on specific aspects, we built a configurable benchmark that based on the configuration emulates heaps with different properties. 
 
@@ -195,7 +195,7 @@ This configurable benchmarking tool has been implemented to emulate specific hea
 We build three benchmarks out of the potential configurations:
 \begin{itemize}
 \item \emph{FragmentedHeap:} First, objects are allocated one the heap, and some of them are released, leading to a potential memory fragmentation. Then, new objets with a minimum size greater than the new free chunks sizes are allocated.
-\item \emph{LargeObjects:} Only large objets with a size greater than 0xFFFF are allocated on the heap.
+\item \emph{LargeObjects:} Only large objets with a size greater than 0xFFFF \sk{put real size in Kb here} are allocated on the heap.
 \item \emph{Data0bjects:} The majority of objects that will be allocated on the heap will be Data objects, which only contains integer of a specific size (in this benchmark, one byte)
 \end{itemize}
 
@@ -227,6 +227,7 @@ To be able to have a garbage collector with a low pause time and still be able t
 \label{sec:valid}
 
 We evaluated both reference algorithms on the benchmarks built.
+\sk{shouldn't we talk about our set-ups? or maybe not because the 2 benchs were run on different computers ?}
 
 \subsection{Moose Benchmarks}
 
@@ -253,7 +254,7 @@ We evaluated both reference algorithms on the benchmarks built.
    	\end{subfigure}
 
    	   	    	
-\caption{Moose benchmark results piled up.}
+\caption{Moose benchmark results piled up (in ms).}
 \label{MooseRes1}
 \end{figure*}
 
@@ -281,11 +282,12 @@ We evaluated both reference algorithms on the benchmarks built.
 \label{MooseRes2}
 \end{figure*}
 
-We evaluated the Moose benchmarks using the reference Mark-Compact and Mark-Sweep algorithm and by analysing the wildfly code base\footnote{http://www.wildfly.org/}. The results are shown in Figure \ref{MooseRes1} and \ref{MooseRes2}. In the results, the compaction time includes the time spent in the compact phase in the Mark-Compact and in the sweep phase in the Mark-Sweep. Total full GC time is the total time spent in full GCs, including the compaction time. Scavenge time is the time spent in scavenges, \emph{i.e.,} garbage collection of young objects only. Total execution time is the total execution time, including scavenge and full GC time.
+\sk{my benchs relies on the same data (the 2 algorithms) + same explanation of the time (full gc and so on). I would move the shared part in the intro of Section 4 and only keep here the part specific to the Moose bench}
+We evaluated the Moose benchmarks using the reference Mark-Compact and Mark-Sweep algorithms and by analysing the wildfly code base\footnote{http://www.wildfly.org/}. The results are shown in Figure \ref{MooseRes1} and \ref{MooseRes2}. In the results, the compaction time includes the time spent in the compact phase in the Mark-Compact and in the sweep phase in the Mark-Sweep. Total full GC time is the total time spent in full GCs, including the compaction time. Scavenge time is the time spent in scavenges, \emph{i.e.,} garbage collection of young objects only. Total execution time is the total execution time, including scavenge and full GC time.
 
 \paragraph{Load.} The Load benchmark grows the memory by 750 Mb with Sweep and by 700 Mb with Compact. Compaction time is smaller for the sweep algorithm, making the benchmark a little bit faster in the Mark-Sweep, which is to be expected since Sweep does not need to waste time updating pointers because objects are not moved in memory.
 
-\paragraph{ExpandProperties.} The ExpandProperties benchmark grows the memory by around 1 Gb. Compaction time is a little bit better with the sweep algorithm as for the previous benchmark, but execution time is much worse. We believe this is due to worse locality of objects.
+\paragraph{ExpandProperties.} The ExpandProperties benchmark grows the memory by around 1 Gb. Compaction time is a little bit better with the sweep algorithm as for the previous benchmark, but execution time is much worse. We believe this is due to worse locality of objects. 
 
 \paragraph{ExpandPropertiesWithCache.} The ExpandPropertiesWithCache benchmark does not increase the overall memory size. Since the compacting GC has compacted the heap before starting the benchmark, there is enough room to allocate the large objects (large objects are allocated directly in old space) required by the benchmark and there is no need for a full GC during the benchmark. However, with the sweep algorithm, there are multiple small available memory chunks which are not big enough to hold all the requested large objects, so a full GC is required. In addition, execution time is worse, as for the previous benchmark.
 
@@ -293,10 +295,12 @@ We evaluated the Moose benchmarks using the reference Mark-Compact and Mark-Swee
 
 \subsection{Configurable benchmark}
 
-\todo{Sophie}
-It would be nice to evaluate both Sweeper and Planning on what we've just discussed.
+We evaluated the configurable benchmarks using the reference Mark-Compact and Mark-Sweep algorithms and by generating specific heap configurations. 
+The resulats are shown in Figure \ref{ConfigRes1} and \ref{ConfigRes2}
 
-I think we show exec time, full gc time, scavenge time, compaction time.
+\paragraph{FragmentedHeap.}
+\paragraph{LargeObjects.}
+\paragraph{Data0bjects.}
 
 \section{Related and Future Work}
 
