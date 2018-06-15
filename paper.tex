@@ -282,8 +282,10 @@ I think we show exec time, full gc time, scavenge time, compaction time.
 Dacapo + see ref in Dacapo. \cite{DacapoBench}
 \todo{Sophie}
 
-\paragraph{ACDC.}
-ACDC-js (Sophie you write a paragraph on that. \cite{ACDCJS}
+\paragraph{ACDC-JS.}
+ACDC-JS \cite{ACDCJS} is a configurable benchmarking tool designed to specifically measure and stress allocation and deallocation time in the JavaScript memory management model. 
+It builds a heap model based on the behavior of real-time applications and aims at providing significant insights on the JavaScript memory management that cannnot be obtained from standard benchmarking suites. The value of specific heap options can be set by the user. 
+Their study shows the negative impact of object liveness (time between allocation and last access, leading to the objects to be in different spaces in the heap) and deallocation delay on allocation time. It also stresses the trade-offs between memory consumption and allocation latency.
 
 \paragraph{Future work: more benchmarks.}
 need to add more benchmarks based on Dacapo ?
