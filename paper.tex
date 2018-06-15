@@ -81,7 +81,7 @@
 \begin{document}
 
 %% Title information
-\title[Garbage Collection Evaluation Infrastructure]{Garbage Collection Evaluation Infrastructure for the Cog VM}
+\title[Garbage Collection Evaluation Infrastructure]{Garbage Collection Evaluation Infrastructure\\ for the Cog VM}
 
 %% Author with single affiliation.
 \author{Sophie Kaleba}
@@ -168,11 +168,7 @@ We built four different benchmarks that falls into three categories: growing, st
 	\item \emph{ExpandProperties}: computes all interesting properties of the model, discard properties rarely used or consuming too much memory, cache common properties not using too much memory. It effectively loads a graph of object connected in many points to the original graph. 
 \end{itemize}
 
-\paragraph{Stable heap.} The stable heap benchmarks perform random memory accesses in a heap which size remains approximately the same. We built one benchmark:
-
-\begin{itemize}
-	\item \emph{ExpandPropertiesWithCache}: computes all interesting properties of the model, common properties with low memory footprint are already cached and other properties are discarded once computed.
-\end{itemize}
+\paragraph{Stable heap.} The stable heap benchmarks perform random memory accesses in a heap which size remains approximately the same. We built one benchmark, \emph{ExpandPropertiesWithCache}, which computes all interesting properties of the model, common properties with low memory footprint are already cached and other properties are discarded once computed.
 
 \paragraph{Shrinking heap.} The shrinking heap benchmark frees part of the heap and performs a GC. We built only one benchmark, \emph{Release}, which removes references to the graph of objects and performs three garbage collections.
 
@@ -275,6 +271,7 @@ We evaluated the Moose benchmarks using the reference Mark-Compact and Mark-Swee
 
 \subsection{Sophie section}
 
+\todo{Sophie}
 It would be nice to evaluate both Sweeper and Planning on what we've just discussed.
 
 I think we show exec time, full gc time, scavenge time, compaction time.
