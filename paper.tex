@@ -335,13 +335,13 @@ It builds a heap model based on the behavior of real-time applications and aims 
 Their study shows the negative impact of object liveness (time between allocation and last access, leading to the objects to be in different spaces in the heap) and deallocation delay on allocation time. It also stresses the trade-offs between memory consumption and allocation latency.
 
 \paragraph{Future work: more benchmarks.}
-need to add more benchmarks based on Dacapo ?
+We described two approaches to bench new memory management strategies: the Moose benchmark, based on a real-world application and the configurable benchmarking tool, highlighting edge cases by stressing the garbage collector on specific aspects. It would be nice to add some benchmarks based on the standard DaCapo benchmark suite so we could assess the performance of our memory management strategies via a reputed benchmarking suite.
 
 \paragraph{Future work: stress GC tests.}
-stress cases from Configurable
+We can stress the garbage collector by running the configurable benchmarking tool with specific sets of options to test the memory startegy in edge cases. By increasing the amount of edge-cases benchmarks led on the garbage collector, we could infer a serie of tests to secure the garbage collector behavior in these situations.
 
 \paragraph{Future work: more options.}
-\sk{maybe? I will add options in the configurator soon. Should I mention it here?}
+The number of options available in the configurable tool is still limited at the moment. We can take advantage of the ACDC-JS implementation, as well as some metrics used in the DaCapo paper, to get a higher number of options and improve the data collected during the benchmark.
 
 %% Bibliography
 \bibliographystyle{alpha}
