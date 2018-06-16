@@ -247,11 +247,11 @@ We evaluated both reference algorithms on the benchmarks built.
     
     \begin{subfigure}[b]{.48\textwidth}
 	\includegraphics[width=\linewidth]{figures/load} 
-	\caption{Load\vspace{0.5cm}}
+	\caption{Load\vspace{0.2cm}}
    	\end{subfigure}\hspace{0.03\textwidth}% 
    	\begin{subfigure}[b]{.48\textwidth}
 	\includegraphics[width=\linewidth]{figures/prop} 
-	\caption{ExpandProperties\vspace{0.5cm}}
+	\caption{ExpandProperties\vspace{0.2cm}}
    	\end{subfigure}	
 	\begin{subfigure}[b]{.48\textwidth}
 	\includegraphics[width=\linewidth]{figures/propCache} 
@@ -268,23 +268,31 @@ We evaluated both reference algorithms on the benchmarks built.
 \end{figure*}
 
 \begin{figure*}[thb]
-\begin{tabular}{|c|c|c|c|c|c|c|c|}
+\begin{tabular}{|c|c|l|l|l|l|l|l|}
    \hline
   & & Total   & Scavenge  & Total Full  & Compaction  & Initial  & Final \\
  Benchmark & &  Exec. time &  time & GC time &  time &  Heap size & Heap size \\
   & &  (ms) &  (ms) & (ms) &  (ms) &  (Mb) &  (Mb) \\
    \hline
-   \multirow{2}{*}{Load} & Sweep 	& 159821 $\pm$ 2218 &	73599 $\pm$ 1281 	& 10863 $\pm$ 726 	&1398 $\pm$ 091 	& 193 $\pm$ 0 	& 959 $\pm$ 9.69 \\
-    				    & Compact 	& 162305 $\pm$ 2790 &	72150 $\pm$ 0782 	& 14091 $\pm$ 972 	&4661 $\pm$ 289 	& 193 $\pm$ 0 	& 909 $\pm$ 9.69 \\
+   \multirow{4}{*}{Load} & Sweep 	& 159821 $\pm$ 2218 &	73599 $\pm$ 1281 	& 10863 $\pm$ 726 	&1398 $\pm$ 91 	& 193 $\pm$ 0 	& 959 $\pm$ 9.69 \\
+    				    & Compact 	& 162305 $\pm$ 2790 &	72150 $\pm$ 782 	& 14091 $\pm$ 972 	&4661 $\pm$ 289 	& 193 $\pm$ 0 	& 909 $\pm$ 9.69 \\
+    				    & Compact-16 	& 96043 $\pm$ 540 &	14279 $\pm$ 124 	& 12440 $\pm$ 217 	&5575 $\pm$ 36 	& 283 $\pm$ 0 	& 1055 $\pm$ 0 \\
+    				    & Sweep-16 		& 91721 $\pm$ 1131 &	13862 $\pm$ 49 	& 9352 $\pm$ 73 	&1208 $\pm$ 9 	& 283 $\pm$ 0 	& 988 $\pm$ 0 \\
    \hline
-   \multirow{2}{*}{ExpandProperties} 	& Sweep 		& 232940 $\pm$ 01287 &	55497 $\pm$ 0238 	& 12240 $\pm$ 285 	&1178 $\pm$ 6.66 	& 959 $\pm$ 9.69 & 1888 $\pm$ 0 \\
-    				    			& Compact 	& 183314 $\pm$ 13090 &	53165 $\pm$ 2343 	& 12496 $\pm$ 197 	&3775 $\pm$ 0108 	& 909 $\pm$ 9.69 & 1938 $\pm$ 0 \\
+   \multirow{4}{*}{ExpandProperties} 	& Sweep 		& 232940 $\pm$ 1287 &	55497 $\pm$ 238 	& 12240 $\pm$ 285 	&1178 $\pm$ 6.66 	& 959 $\pm$ 9.69 & 1888 $\pm$ 0 \\
+    				    			& Compact 	& 183314 $\pm$ 13090 &	53165 $\pm$ 2343 	& 12496 $\pm$ 197 	&3775 $\pm$ 108 	& 909 $\pm$ 9.69 & 1938 $\pm$ 0 \\
+    				    & Compact-16 	& 100315 $\pm$ 138 &	9372 $\pm$ 75 	& 9466 $\pm$ 87 	&3301 $\pm$ 31 	& 1055 $\pm$ 0 	& 2028 $\pm$ 0 \\
+    				    & Sweep-16 		& 107914 $\pm$ 216 &	9714 $\pm$ 34 	& 9384 $\pm$ 107 	&864 $\pm$ 5 	& 988 $\pm$ 0 	& 2011 $\pm$ 0 \\
    \hline
-   ExpandProperties 		& Sweep 		& 510013 $\pm$ 05812 &	64234 $\pm$ 0823 	& 23225 $\pm$ 100 	&2011 $\pm$ 10 	& 1888 $\pm$ 0 	& 1888 $\pm$ 0 \\
-   WithCache  			& Compact 	& 408169 $\pm$ 20444 &	64492 $\pm$ 1234 	& 0 $\pm$ 0 		&0 $\pm$ 0 		& 1938 $\pm$ 0 		& 1938 $\pm$ 0 \\
+    					& Sweep 		& 510013 $\pm$ 5812 	&	64234 $\pm$ 823 	& 23225 $\pm$ 100 	&2011 $\pm$ 10 	& 1888 $\pm$ 0 	& 1888 $\pm$ 0 \\
+     	ExpandProperties	& Compact 	& 408169 $\pm$ 20444 	&	64492 $\pm$ 1234 	& 0 $\pm$ 0 		&0 $\pm$ 0 		& 1938 $\pm$ 0 	& 1938 $\pm$ 0 \\
+    		WithCache	& Compact-16 	& 105389 $\pm$ 1067 	&	6467 $\pm$ 47 		& 3019 $\pm$ 24 	&937 $\pm$ 6 		& 2028 $\pm$ 0 	& 2028 $\pm$ 0 \\
+    				    	& Sweep-16 	& 114325 $\pm$ 403 	&	6323 $\pm$ 23 		& 2347 $\pm$ 13 	&209 $\pm$ 6 		& 2011 $\pm$ 0 	& 2011 $\pm$ 0 \\
    \hline
-   \multirow{2}{*}{Release} 	& Sweep 		& 0606 $\pm$ 16 		&	0 $\pm$ 0 	& 0605 $\pm$ 16 	&316 $\pm$ 12 		& 1888 $\pm$ 0 	& 534 $\pm$ 58 \\
-    				    		& Compact 	& 1092 $\pm$ 02 	&	0 $\pm$ 0 	& 1092 $\pm$ 01 		&806 $\pm$ 03 			& 1938 $\pm$ 0 		& 193 $\pm$ 00 \\
+   \multirow{4}{*}{Release} 	& Sweep 		& 606 $\pm$ 16 		&	0 $\pm$ 0 	& 605 $\pm$ 16 	&316 $\pm$ 12 		& 1888 $\pm$ 0 		& 534 $\pm$ 58 \\
+    				    		& Compact 	& 1092 $\pm$ 2 		&	0 $\pm$ 0 	& 1092 $\pm$ 1 	&806 $\pm$ 3 			& 1938 $\pm$ 0 		& 193 $\pm$ 0 \\
+    				    & Compact-16 	& 1120 $\pm$ 13 		&	0 $\pm$ 0 		& 1119 $\pm$ 13 	&829 $\pm$ 8 			& 2028 $\pm$ 0 		& 300 $\pm$ 0 \\
+    				    & Sweep-16 		& 610 $\pm$ 1 			&	0 $\pm$ 0 		& 610 $\pm$ 1 		&314 $\pm$ 2 			& 2011 $\pm$ 0 		& 535 $\pm$ 203 \\
    \hline
 \end{tabular} 
 \caption{Moose benchmark results with standard errors.}
