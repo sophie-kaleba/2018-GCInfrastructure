@@ -289,7 +289,7 @@ We evaluated the Moose benchmarks using the reference Mark-Compact and Mark-Swee
 
 \paragraph{ExpandProperties.} The ExpandProperties benchmark grows the memory by around 1 Gb. Compaction time is a little bit better with the sweep algorithm as for the previous benchmark, but execution time is much worse. We believe this is due to worse locality of objects. 
 
-\paragraph{ExpandPropertiesWithCache.} The ExpandPropertiesWithCache benchmark does not increase the overall memory size. Since the compacting GC has compacted the heap before starting the benchmark, there is enough room to allocate the large objects (large objects are allocated directly in old space) required by the benchmark and there is no need for a full GC during the benchmark. However, with the sweep algorithm, there are multiple small available memory chunks which are not big enough to hold all the requested large objects, so a full GC is required. In addition, execution time is worse, as for the previous benchmark.
+\paragraph{ExpandPropertiesWithCache.} The ExpandProperties WithCache benchmark does not increase the overall memory size. Since the compacting GC has compacted the heap before starting the benchmark, there is enough room to allocate the large objects (large objects are allocated directly in old space) required by the benchmark and there is no need for a full GC during the benchmark. However, with the sweep algorithm, there are multiple small available memory chunks which are not big enough to hold all the requested large objects, so a full GC is required. In addition, execution time is worse, as for the previous benchmark.
 
 \paragraph{Release.} The Release benchmark releases all the graphs. With the compacting GC, memory goes back to its original size. With Sweep, multiple memory segments are left with a few live objects, forbidding the OS to reclaim those segments. Hence, the memory decreases drastically, but not to the original size. Compaction time is much faster with Sweep, but as we have discussed, for less efficiency.
 
@@ -298,18 +298,39 @@ We evaluated the Moose benchmarks using the reference Mark-Compact and Mark-Swee
 We evaluated the configurable benchmarks using the reference Mark-Compact and Mark-Sweep algorithms and by generating specific heap configurations. 
 The resulats are shown in Figure \ref{ConfigRes1} and \ref{ConfigRes2}
 
-\paragraph{FragmentedHeap.}
+\paragraph{FragmentedHeap.} 
+\begin{itemize}
+\item impact on memory size and numbers of segments
+\item impact on execution time 
+\end{itemize}
 \paragraph{LargeObjects.}
+\begin{itemize}
+\item impact on memory size 
+\item impact on number of scavenges and number of full GC's
+\end{itemize}
 \paragraph{Data0bjects.}
+\begin{itemize}
+\item impact on memory size
+\item impact on overall time (full gc, compaction time)
+\end{itemize}
 
 \section{Related and Future Work}
 
-\paragraph{GC benchmark suite.}
-Dacapo + see ref in Dacapo. \cite{DacapoBench}
-\todo{Sophie}
+\paragraph{GC benchmark suite.} The DaCapo benchmarks \cite{DacapoBench} is a standard benchmarking suite designed for Java applications. It gathers several open-source benchmarks and run them against specific metrics to assess their potential performance \sk{significance towards} on different aspects of the Java language, typically its memory management and virtual machines.
+With regard to memory management, the eleven benchmarks selected in 2006 (and updated later in 2009, to add three more benchmarks \ref{dacapowebsite} \sk{add ref in bib}) are assessed according to their number of allocated objects and their average size and their maximum number of live objects. The nursery (young space) survival rate is also taken into account, as well as the heap structure through object lifetime behavior.
+These criteria were chosen \sk{rephrase} as significant to asses the performance of memory management. 
+
+%The part dedicated to memory management focuses on three metrics: allocation demographics, lifetime and live objects. The benchmarks used shows a rich and diverse object lifetime behaviors. --> dacapo allocates more objets, 3 time the live size of SPEC.
+%Heap volume, Heap objects, Mean object size, nursery survival rate.
+%
+%measure object size demographics (size demographics for each benchmark)
+%--> live and allocation time serie analysis
+%plot heap composition (allocations and pointer mutations)
+%--> richer lifetime behavior 
+
 
 \paragraph{ACDC-JS.}
-ACDC-JS \cite{ACDCJS} is a configurable benchmarking tool designed to specifically measure and stress allocation and deallocation time in the JavaScript memory management model. 
+ACDC-JS \cite{ACDCJS} is a configurable \\benchmarking tool designed to specifically measure and stress allocation and deallocation time in the JavaScript memory management model. 
 It builds a heap model based on the behavior of real-time applications and aims at providing significant insights on the JavaScript memory management that cannnot be obtained from standard benchmarking suites. The value of specific heap options can be set by the user. 
 Their study shows the negative impact of object liveness (time between allocation and last access, leading to the objects to be in different spaces in the heap) and deallocation delay on allocation time. It also stresses the trade-offs between memory consumption and allocation latency.
 
