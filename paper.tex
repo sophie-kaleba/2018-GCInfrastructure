@@ -228,7 +228,7 @@ To be able to have a garbage collector with a low pause time and still be able t
 
 We evaluated both reference algorithms on the benchmarks built. 
 
-In the results, the compaction time includes the time spent in the compact phase in the Mark-Compact and in the sweep phase in the Mark-Sweep. Total full GC time is the total time spent in full GCs, including  compaction time. Scavenge time is the time spent in scavenges, \emph{i.e.,} garbage collection of young objects only. Total execution time is the total execution time, including scavenge and full GC time. Scavenge time is drastically smaller with a larger Eden, leading to better overall performance.
+In the results, the compaction time includes the time spent in the compact phase in the Mark-Compact and in the sweep phase in the Mark-Sweep. Total full GC time is the total time spent in full GCs, including  compaction time. Scavenge time is the time spent in scavenging, \emph{i.e.,} garbage collection of young objects only. Total execution time is the total execution time, including scavenge and full GC time. Scavenge time is drastically smaller with a larger Eden, leading to better overall performance.
 
 \subsection{Moose Benchmarks}
 
@@ -326,12 +326,12 @@ We evaluated the configurable benchmarks using the reference Mark-Compact and Ma
 The results are shown in Figure \ref{ConfigRes1} and \ref{ConfigRes2}
 
 \paragraph{FragmentedHeap.} 
-allocate n objects of size x, release half of them, and reallocate n/2 objects of size y>x. Compare the performance (time spent in full GC, scavenges, compacting, and execution time) for both Mark-Sweep and Mark-Compact
+allocate n objects of size x, release half of them, and reallocate n/2 objects of size y>x. Compare the performance (time spent in full GC, scavenging, compacting, and execution time) for both Mark-Sweep and Mark-Compact
 \begin{itemize}
 \item impact on memory size and numbers of segments
 \item impact on execution time 
 \end{itemize}
-\paragraph{LargeObjects.} The LargeObjects benchmark allocates objects larger than 65535 32-bit machine words. The time spent in scavenges is therefore lower. Allocating large objects has an impact on the number of memory growing and shrinking operations, which can be altered by tuning the associated parameters in the VM. 
+\paragraph{LargeObjects.} The LargeObjects benchmark allocates objects larger than 65535 32-bit machine words. The time spent in scavenging is therefore lower. Allocating large objects has an impact on the number of memory growing and shrinking operations, which can be altered by tuning the associated parameters in the VM. 
 \paragraph{Data0bjects.} The DataObjects benchmark allocates a large amount of data objects on the heap (90\% of all allocated objects during the benchmark). The time spent in full GC's and the compaction time are lower in comparison with a case with 40\% of Data Objects. This can be explained because less time is spent in the marking and pointer update phases.
 
 \section{Related and Future Work}
