@@ -142,7 +142,7 @@ Building and tuning a new GC algorithm requires evaluating its behavior. A bench
 
 First, we contacted multiple companies looking for production use of the Cog VM with memory intensive applications ($>$1Gb heaps) and built benchmarks out of one of the deployed applications. As an example, we will discuss in the paper in Section \ref{sec:mooseBench} the Moose benchmarks implemented with the help of Feenk\footnote{https://feenk.com/}. Part of the business of Feenk consists in analysing software written in multiple programming languages using the open-source framework Moose~\cite{MoosePaper1,MooseBook1}. Using Moose, the application parses the software to analyse into a model, performs analysis on it and lastly releases the model. Models currently used are encoded in up to 11Gb. This behaviour was turned into three benchmarks, growing, accessing and shrinking the heap. 
 
-Second, we implemented a configurable benchmark: the idea is to set-up specific heap characteristics that will stress the garbage collector. A set of options is available to the user to tune the type of allocated objects and some of their features. These options can be associated with different heap states: growing, stable or shrinking, like in our other approach. We ran three benchmark cases with this tool: fragmented heap, large objects in heap and majority of data objects in heap.
+Second, we implemented a configurable benchmark: the idea is to set-up specific heap characteristics that will stress the garbage collector. A set of options is available to the user to tune the type of allocated objects and some of their features. These options can be associated with different heap states: growing, stable or shrinking, like in our other approach. We ran two benchmark cases with this tool: large objects in heap and majority of data objects in heap.
 This implementation and the use-cases are detailed in Section \ref{sec:confBench}
 
 To evaluate a new algorithm, we also need to compare it to reference implementations. The Cog VM features a Mark-Compact algorithm used in production. The compaction phase is quite specific since it slides objects down in memory while handling pinned objects and spends time updating references to point to their eventual locations. In addition to this algorithm, we implemented a Mark-Sweep, which does not move objects in memory and is thus quicker to perform. Section \ref{sec:ref} details the two implementations.
@@ -189,11 +189,11 @@ This configurable benchmarking tool has been implemented to emulate specific hea
 
 \paragraph{Heap state.} The heap state can also be tuned. Once objects have been allocated on the heap according to the selected options, it is possible to decide whether to allocate more objects (growing heap), to release objects that have been previously allocated (shrinking heap), or to stay in the current state and potentially access and modify objects that have been previously allocated (stable heap). These options echo the 3 benchmarks depicted in Section \ref{sec:mooseBench}\\
 
-We built three benchmarks out of the potential configurations:
+We built two benchmarks out of the potential configurations:
 \begin{itemize}
-\item \emph{FragmentedHeap:} First, objects are allocated on the heap, and some of them are released, leading to potential memory fragmentation. Then, new objects with a minimum size greater than the new free chunks sizes are allocated.
+%\item \emph{FragmentedHeap:} First, objects are allocated on the heap, and some of them are released, leading to potential memory fragmentation. Then, new objects with a minimum size greater than the new free chunks sizes are allocated.
 \item \emph{LargeObjects:} Only large objects with a size greater than 65535 32-bit machine words are allocated on the heap. These objects are allocated directly in the old space.
-\item \emph{Data0bjects:} The majority of the objects that will be allocated on the heap will be Data objects, which will only contain one-byte-sized integers in this benchmark. Data Objects can contain integers, float or double: the garbage collector will not go through their slots in the marking phase.
+\item \emph{Data0bjects:} The majority of the objects that will be allocated on the heap will be Data objects, which will only contain one-byte-sized integers in this benchmark. Data Objects are raw data objects, which can be used, for example, to store characters, restricted-range integers, floats, etc: the garbage collector will not go through their slots in the marking phase.
 \end{itemize}
 
 \section{Reference Implementations} \label{sec:ref}
@@ -317,37 +317,59 @@ The results are shown in Figure \ref{MooseRes1} and \ref{MooseRes2}.
 
 \subsection{Configurable Benchmark}
 
+\begin{figure*}[b!]
+	\centering
+    
+    \begin{subfigure}[b]{.48\textwidth}
+	\includegraphics[width=\linewidth]{figures/big} 
+	\caption{LargeObjects\vspace{0.2cm}}
+   	\end{subfigure}\hspace{0.03\textwidth}% 
+   	\begin{subfigure}[b]{.48\textwidth}
+	\includegraphics[width=\linewidth]{figures/data} 
+	\caption{DataObjects\vspace{0.2cm}}
+   	\end{subfigure}	
 
+   	   	    	
+\caption{Configurable benchmark results piled up (in ms).} \label{ConfigRes1}
+\end{figure*}
+
+\begin{figure*}[b!]
+\begin{tabular}{|c|c|l|l|l|l|}
+   \hline
+  & & Total   & Scavenge  & Total Full  & Compaction   \\
+ Benchmark & &  Exec. time &  time & GC time &  time \\
+  & &  (ms) &  (ms) & (ms) &  (ms)\\
+   \hline
+   \multirow{4}{*}{LargeObjects} & Small 	& 43110 $\pm$ 338 &	3223 $\pm$ 76 	& 541 $\pm$ 5 	&298 $\pm$ 2.8  \\
+    				    & Small-NewMem 	& 42886 $\pm$ 341 &	3204 $\pm$ 23 	& 605 $\pm$ 43 	&348 $\pm$ 8  \\
+    				    & Large 	& 1514 $\pm$ 15 &	155 $\pm$ 4 	& 414 $\pm$ 1 	&223 $\pm$ 4  \\
+    				    & Large-NewMem 		& 1506 $\pm$ 20 &	163 $\pm$ 8 	& 408 $\pm$ 6 	&219 $\pm$ 6  \\
+   \hline
+   \multirow{4}{*}{DataObjects} 	& Compact-Less 		& 55757 $\pm$ 1998 &	6465 $\pm$ 122 	& 403 $\pm$ 36 	&232 $\pm$ 20.55  \\
+    				    			& Compact 	& 12738 $\pm$ 13090 &	569 $\pm$ 10 	& 168 $\pm$ 27 	&98 $\pm$ 15  \\
+    				    & Sweep 	& 13785 $\pm$ 269 &	604 $\pm$ 9 	& 115 $\pm$ 2 	&27 $\pm$ 1 \\
+    				    & Sweep-Less 		& 59398 $\pm$ 592 &	6679 $\pm$ 34 	& 226 $\pm$ 3 	&56 $\pm$ 1 \\
+
+   \hline
+\end{tabular} 
+\caption{Configurable benchmark results with standard errors.} \label{ConfigRes2}
+\end{figure*}
 
 \paragraph{Set-up.}The Configurable Benchmark evaluation was performed on an Asus Zenbook running Ubuntu 18.04 LTS, with a 2.2 Ghz processor Intel Core i5, and 8 Gb of 1600MHz DDR3 RAM. The Linux VM was compiled using GCC version 5.4.0. The compiled VMs are 32-bit (x86) applications with 32-bit objects and pointers. \footnote{Spur uses a common object header for both 32-bit and 64-bit versions, so 32-bit objects still have a 64-bit header and are all aligned on a 64-bit boundary.}
-
 
 We evaluated the configurable benchmarks using the reference Mark-Compact and Mark-Sweep algorithms and by generating specific heap configurations. 
 The results are shown in Figure \ref{ConfigRes1} and \ref{ConfigRes2}
 
-\paragraph{FragmentedHeap.} 
-allocate n objects of size x, release half of them, and reallocate n/2 objects of size y>x. Compare the performance (time spent in full GC, scavenges, compacting, and execution time) for both Mark-Sweep and Mark-Compact
-\begin{itemize}
-\item impact on memory size and numbers of segments
-\item impact on execution time 
-\end{itemize}
-\paragraph{LargeObjects.} The LargeObjects benchmark allocates objects larger than 65535 32-bit machine words. The time spent in scavenges is therefore lower. Allocating large objects has an impact on the number operations of memory growing and shrinking, which can be lowered by tuning the associated parameters in the VM. 
+%\paragraph{FragmentedHeap.} The fragmented heap benchmark allocates objects of 300 slots maximum, releases half of them, and re-allocates half of the amount of objects with a minimum size of 600 slots.
+
+
+\paragraph{LargeObjects.} The LargeObjects benchmark allocates objects larger than 65535 32-bits machine words. The time spent in scavenges is therefore lower than with smaller objects (that are not allocated in the old space at first). Allocating large objects has an impact on the number operations of memory growing and shrinking, which can be lowered by tuning the associated parameters in the VM. In this example, the New-Mem cases have memory segments four times bigger, and four empty segments are available instead of one.
 \paragraph{Data0bjects.} The DataObjects benchmark allocates a large amount of data objects on the heap (90\% of all allocated objects during the benchmark). The time spent in full GC's and the compaction time are lower in comparison with a case with 40\% of Data Objects. This can be explained because less time is spent in the marking and pointer update phases.
 
 \section{Related and Future Work}
 
 \paragraph{GC benchmark suite.} The DaCapo benchmark suite \cite{DacapoBench} is a standard set of benchmarks designed for Java applications. It gathers together several open-source benchmarks and runs them against specific metrics to assess their potential significance towards different aspects of the Java language implementation, typically its memory management and virtual machines.
 With regard to memory management, the eleven benchmarks selected in 2006 (and updated later in 2009 to add three more benchmarks \cite{DaCapo}) are assessed according to the number of allocated objects, their average size, and the maximum number of live objects. The nursery (new space) survival rate is also taken into account, as well as the heap structure through object lifetime behavior.
-These criteria were identified as significant in assessing the performance of memory management \eem{by whom?}. 
-
-%The part dedicated to memory management focuses on three metrics: allocation demographics, lifetime and live objects. The benchmarks used shows a rich and diverse object lifetime behaviors. --> dacapo allocates more objets, 3 time the live size of SPEC.
-%Heap volume, Heap objects, Mean object size, nursery survival rate.
-%
-%measure object size demographics (size demographics for each benchmark)
-%--> live and allocation time serie analysis
-%plot heap composition (allocations and pointer mutations)
-%--> richer lifetime behavior 
-
 
 \paragraph{ACDC-JS.}
 ACDC-JS \cite{ACDCJS} is a configurable \\benchmarking tool designed to measure and stress allocation and deallocation time in the JavaScript memory management model. 
