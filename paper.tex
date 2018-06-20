@@ -140,7 +140,7 @@ The Cog virtual machine (VM), the default VM for multiple programming languages 
 
 Building and tuning a new GC algorithm requires evaluating its behavior. A benchmarking infrastructure is required to do so. To build GC benchmarks, we took two approaches. 
 
-First, we contacted multiple companies looking for production use of the Cog VM with memory intensive applications (>1Gb heaps) and built benchmarks out of one of the deployed applications. As an example, we will discuss in the paper in Section \ref{sec:mooseBench} the Moose benchmarks implemented with the help of Feenk\footnote{https://feenk.com/}. Part of the business of Feenk consists in analysing software written in multiple programming languages using the open-source framework Moose~\cite{MoosePaper1,MooseBook1}. Using Moose, the application parses the software to analyse into a model, performs analysis on it and lastly releases the model. Models currently used are encoded in up to 11Gb. This behaviour was turned into three benchmarks, growing, accessing and shrinking the heap. 
+First, we contacted multiple companies looking for production use of the Cog VM with memory intensive applications ($>$1Gb heaps) and built benchmarks out of one of the deployed applications. As an example, we will discuss in the paper in Section \ref{sec:mooseBench} the Moose benchmarks implemented with the help of Feenk\footnote{https://feenk.com/}. Part of the business of Feenk consists in analysing software written in multiple programming languages using the open-source framework Moose~\cite{MoosePaper1,MooseBook1}. Using Moose, the application parses the software to analyse into a model, performs analysis on it and lastly releases the model. Models currently used are encoded in up to 11Gb. This behaviour was turned into three benchmarks, growing, accessing and shrinking the heap. 
 
 Second, we implemented a configurable benchmark: the idea is to set-up specific heap characteristics that will stress the garbage collector. A set of options is available to the user to tune the type of allocated objects and some of their features. These options can be associated with different heap states: growing, stable or shrinking, like in our other approach. We ran three benchmark cases with this tool: fragmented heap, large objects in heap and majority of data objects in heap.
 This implementation and the use-cases are detailed in Section \ref{sec:confBench}
@@ -193,7 +193,7 @@ We built three benchmarks out of the potential configurations:
 \begin{itemize}
 \item \emph{FragmentedHeap:} First, objects are allocated on the heap, and some of them are released, leading to potential memory fragmentation. Then, new objects with a minimum size greater than the new free chunks sizes are allocated.
 \item \emph{LargeObjects:} Only large objects with a size greater than 65535 32-bit machines words are allocated on the heap. These objects are allocated directly in the old space.
-\item \emph{Data0bjects:} The majority of objects that will be allocated on the heap will be Data objects, which will only contains one-byte-sized integers of a specific size in this benchmark  
+\item \emph{Data0bjects:} The majority of the objects that will be allocated on the heap will be Data objects, which will only contain one-byte-sized integers in this benchmark. Data Objects can contain integers, float or double: the garbage collector will not go through their slots in the marking phase.
 \end{itemize}
 
 \section{Reference Implementations} \label{sec:ref}
@@ -332,12 +332,7 @@ allocate n objects of size x, release half of them, and reallocate n/2 objects o
 \item impact on execution time 
 \end{itemize}
 \paragraph{LargeObjects.} The LargeObjects benchmark allocates objects larger than 65535 32-bit machine words. The time spent in scavenges is therefore lower. Allocating large objects has an impact on the number operations of memory growing and shrinking, which can be lowered by tuning the associated parameters in the VM. 
-\paragraph{Data0bjects.}
- allocate a lot of data objects (90\% of all allocated objects during the bench). Compare for Mark-Sweep and Mark-Compact
-\begin{itemize}
-\item impact on memory size
-\item impact on overall time (full gc, compaction time)
-\end{itemize}
+\paragraph{Data0bjects.} The DataObjects benchmark allocates a large amount of data objects on the heap (90\% of all allocated objects during the benchmark). The time spent in full GC's and the compaction time are lower in comparison with a case with 40\% of Data Objects. This can be explained because less time is spent in the marking and pointer update phases.
 
 \section{Related and Future Work}
 
