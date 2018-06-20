@@ -331,7 +331,7 @@ allocate n objects of size x, release half of them, and reallocate n/2 objects o
 \item impact on memory size and numbers of segments
 \item impact on execution time 
 \end{itemize}
-\paragraph{LargeObjects.} The LargeObjects benchmark allocates objects larger than 65535 32-bit machine words. The time spent in scavenges is therefore lower. Allocating large objects has an impact on the number operations of memory growing and shrinking, which can be lowered by tuning the associated parameters in the VM. 
+\paragraph{LargeObjects.} The LargeObjects benchmark allocates objects larger than 65535 32-bit machine words. The time spent in scavenges is therefore lower. Allocating large objects has an impact on the number of memory growing and shrinking operations, which can be altered by tuning the associated parameters in the VM. 
 \paragraph{Data0bjects.} The DataObjects benchmark allocates a large amount of data objects on the heap (90\% of all allocated objects during the benchmark). The time spent in full GC's and the compaction time are lower in comparison with a case with 40\% of Data Objects. This can be explained because less time is spent in the marking and pointer update phases.
 
 \section{Related and Future Work}
