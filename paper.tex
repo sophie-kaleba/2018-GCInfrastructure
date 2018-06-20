@@ -192,7 +192,7 @@ This configurable benchmarking tool has been implemented to emulate specific hea
 We built three benchmarks out of the potential configurations:
 \begin{itemize}
 \item \emph{FragmentedHeap:} First, objects are allocated on the heap, and some of them are released, leading to potential memory fragmentation. Then, new objects with a minimum size greater than the new free chunks sizes are allocated.
-\item \emph{LargeObjects:} Only large objects with a size greater than 65535 32-bits machines words are allocated on the heap. These objects are allocated directly in the old space.
+\item \emph{LargeObjects:} Only large objects with a size greater than 65535 32-bit machines words are allocated on the heap. These objects are allocated directly in the old space.
 \item \emph{Data0bjects:} The majority of objects that will be allocated on the heap will be Data objects, which will only contains one-byte-sized integers of a specific size in this benchmark  
 \end{itemize}
 
@@ -328,7 +328,7 @@ allocate n objects of size x, release half of them, and reallocate n/2 objects o
 \item impact on memory size and numbers of segments
 \item impact on execution time 
 \end{itemize}
-\paragraph{LargeObjects.} The LargeObjects benchmark allocates objects larger than 65535 32-bits machine words. The time spent in scavenges is therefore lower. Allocating large objects has an impact on the number operations of memory growing and shrinking, which can be lowered by tuning the associated parameters in the VM. 
+\paragraph{LargeObjects.} The LargeObjects benchmark allocates objects larger than 65535 32-bit machine words. The time spent in scavenges is therefore lower. Allocating large objects has an impact on the number operations of memory growing and shrinking, which can be lowered by tuning the associated parameters in the VM. 
 \paragraph{Data0bjects.}
  allocate a lot of data objects (90\% of all allocated objects during the bench). Compare for Mark-Sweep and Mark-Compact
 \begin{itemize}
