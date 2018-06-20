@@ -75,6 +75,8 @@
 \newcommand{\todo}[1]{\color{orange}\fbox{\bfseries\sffamily\scriptsize TODO:}{\sf\small$\blacktriangleright$\textit{#1}$\blacktriangleleft$}\color{black}}
 \newcommand{\sk}[1]{\color{blue}\fbox{\bfseries\sffamily\scriptsize Sophie:}{\sf\small$\blacktriangleright$\textit{#1}$\blacktriangleleft$}\color{black}}
 \newcommand{\cba}[1]{\color{purple}\fbox{\bfseries\sffamily\scriptsize Clement:}{\sf\small$\blacktriangleright$\textit{#1}$\blacktriangleleft$}\color{black}}
+\newcommand{\eem}[1]{\color{green}\fbox{\bfseries\sffamily\scriptsize Eliot:}{\sf\small$\blacktriangleright$\textit{#1}$\blacktriangleleft$}\color{black}}
+
 %\newcommand*{rotatebox{75}}
 \input{macros}
 
@@ -88,7 +90,7 @@
                                         %% can be repeated if necessary
 \affiliation{
   %\position{Position1}
-  \department{Master student}              %% \department is recommended
+  \department{Masters student}              %% \department is recommended
   \institution{Universit\'e de Lille 1}            %% \institution is required
  % \streetaddress{Street1 Address1}
   \city{Lille}
@@ -125,7 +127,7 @@
 \email{eliot.miranda@gmail.com}          %% \email is recommended
 
 \begin{abstract}
-One of the next step to improve the Cog virtual machine, the default virtual machine for multiple programming languages such as Pharo, Squeak and Newspeak, is to decrease the garbage collection pause time. A benchmarking infrastructure and reference garbage collection algorithm implementations are required to evaluate the performance of a new algorithm and compare it. Cog features a Mark-Compact algorithm, used in production, and we introduced a Mark-Sweep algorithm as the two reference algorithms. Benchmarks are built using two different approaches. Firstly, we turned code from memory intensive deployed applications into benchmarks to simulate real-world applications. Secondly, we built a configurable benchmark which simulates an application with different heap properties to be able to stress specific aspects of the memory management. We then evaluated the two reference algorithms on the infrastructure built to have reference benchmark results.
+One of the next steps to improve the Cog virtual machine, the default virtual machine for multiple programming languages in the Smalltalk family, such as Pharo, Squeak and Newspeak, is to decrease garbage collection pause times. Reference garbage collection algorithm implementations and a benchmarking infrastructure are required to evaluate the performance of a new algorithm and compare it. Cog features a Mark-Compact algorithm, used in production, to which we added a Mark-Sweep algorithm, providing two reference algorithms. Benchmarks are built using two different approaches. Firstly, we turned code from memory intensive deployed applications into benchmarks to simulate real-world applications. Secondly, we built a configurable benchmark which simulates an application with different heap properties to be able to stress specific aspects of the memory management. We then evaluated the two reference algorithms on the infrastructure built to obtain reference benchmark results.
 \end{abstract}
 
 \keywords{Benchmark, Garbage Collector, Virtual machine, Managed runtime}  %% \keywords are mandatory in final camera-ready submission
@@ -137,17 +139,17 @@ One of the next step to improve the Cog virtual machine, the default virtual mac
 
 The Cog virtual machine (VM), the default VM for multiple programming languages such Pharo \cite{PharoByExample}, Squeak \cite{SqueakByExample} and Newspeak \cite{NewspeakOopsla}, currently features in production a stop-the-world Mark-Compact algorithm as the full garbage collector (GC) algorithm. The algorithm has a high throughput but a high pause time during which the application is not responsive (the GC interrupts the application for multiple seconds on modern Macbooks starting from multiple Gbs heaps). For interactive applications, a new algorithm is required with a smaller pause time.
 
-Building and tuning a new GC algorithm requires to evaluate its behavior. A benchmarking infrastructure is required to do so. To build GC benchmarks, we took two approaches. 
+Building and tuning a new GC algorithm requires evaluating its behavior. A benchmarking infrastructure is required to do so. To build GC benchmarks, we took two approaches. 
 
-Firstly, we contacted multiple companies using the Cog VM in production on memory intensive application (>1Gb heaps) and built benchmarks out of their deployed application. As an example, we will discuss in the paper in Section \ref{sec:mooseBench} the Moose benchmarks implemented with the help of Feenk\footnote{https://feenk.com/}. Part of the business of Feenk consists in analysing software written in multiple programming languages using the open-source framework Moose~\cite{MoosePaper1,MooseBook1}. Using Moose, the application parses the software to analyse into a model, performs analysis on it and lastly releases the model. Models currently used are encoded in up to 11Gb. This behavior was turned into three benchmarks, growing, accessing and shrinking the heap. 
+First, we contacted multiple companies looking for use of the Cog VM in production with memory intensive applications (>1Gb heaps) and built benchmarks out of one of their deployed applications. As an example, we will discuss in the paper in Section \ref{sec:mooseBench} the Moose benchmarks implemented with the help of Feenk\footnote{https://feenk.com/}. Part of the business of Feenk consists in analysing software written in multiple programming languages using the open-source framework Moose~\cite{MoosePaper1,MooseBook1}. Using Moose, the application parses the software to analyse into a model, performs analysis on it and lastly releases the model. Models currently used are encoded in up to 11Gb. This behavior was turned into three benchmarks, growing, accessing and shrinking the heap. 
 
-Secondly, we implemented a configurable benchmark: the idea is to set-up specific heap structures that will stress the garbage collector. A set of specific options is available to the user to tune the type of allocated objects and some of their features. These options can be associated with different heap states: growing, stable or shrinking, like in our other approach. \todo{fin a ref}
+Second, we implemented a configurable benchmark: the idea is to set-up specific heap structures that will stress the garbage collector. A set of options is available to the user to tune the type of allocated objects and some of their features. These options can be associated with different heap states: growing, stable or shrinking, like in our other approach. \todo{fin a ref}
 \sk{add the case we benchmarked with this approach}
 This implementation and the use-cases are detailed in Section \ref{sec:confBench}
 
-To evaluate a new algorithm, we also need to compare it to reference implementations. The Cog VM features a Mark-Compact algorithm in production. The compaction phase is quite specific since it moves objects in memory and spend time updating references. In addition to this algorithm, we implemented a Mark-Sweep, which does not move objects in memory and is quicker to perform. Section \ref{sec:ref} details the two implementations.
+To evaluate a new algorithm, we also need to compare it to reference implementations. The Cog VM features a Mark-Compact algorithm used in production. The compaction phase is quite specific since it slides objects down in memory while handling pinned objects and spends time updating references to point to their eventual locations. In addition to this algorithm, we implemented a Mark-Sweep, which does not move objects in memory and is thus quicker to perform. Section \ref{sec:ref} details the two implementations.
 
-We evaluated both algorithm on the benchmarks we built to provide results of the reference algorithms on the infrastructure built.
+We evaluated both algorithms on the benchmarks we built to provide results of the reference algorithms on the infrastructure built.
 
 We conclude the paper by discussing some related work, the GC benchmarks suites for Java and the ACDC benchmarks, and some future work.
 
@@ -162,43 +164,43 @@ To build GC benchmarks, we took two approaches. We asked companies for their dep
 \subsection{Moose benchmark}
 \label{sec:mooseBench}
 
-Part of the business of Feenk consists in analyzing softwares. To do so, the application parses a mse file into a model, performs some analysis, and then releases the model and generates analysis results. For business, the application analyzes closed-sourced application of companies. To build an open-source benchmark, we analyse open-source applications instead of closed-source ones.
+Part of the business of Feenk consists in analyzing large software systems. To do so, the application parses a mse file into a model, performs some analysis, and then releases the model and generates analysis results. For business, the application analyzes closed-sourced application of companies. To build an open-source benchmark, we analyse open-source applications instead of closed-source ones.
 
-We built four different benchmarks that falls into three categories: growing, stable and shrinking heaps. The benchmarks were built on top of the stable Moose image\footnote{http://www.moosetechnology.org/}.
+We built four different benchmarks that fall into three categories: growing, stable and shrinking heaps. The benchmarks were built on top of the stable Moose image\footnote{http://www.moosetechnology.org/}.
 
 \paragraph{Growing heap.} The growing heap benchmarks increase the heap size as they are performed, mainly creating objects. We built two benchmarks:
 \begin{itemize}
-	\item \emph{LoadFromMSE}: parses a mse file into a moose model, effectively loading a graph of object. This is the only benchmark not taking a moose model as a parameter.
-	\item \emph{ExpandProperties}: computes all interesting properties of the model, discard properties rarely used or consuming too much memory, cache common properties not using too much memory. It effectively loads a graph of object connected in many points to the original graph. 
+	\item \emph{LoadFromMSE}: parses a mse file into a moose model, effectively loading a graph of objects. This is the only benchmark not taking a moose model as a parameter.
+	\item \emph{ExpandProperties}: computes all interesting properties of the model, discarding properties rarely used or consuming too much memory, cacheing common properties not using too much memory. It effectively loads a graph of objects connected in many points to the original graph. 
 \end{itemize}
 
-\paragraph{Stable heap.} The stable heap benchmarks perform random memory accesses in a heap which size remains approximately the same. We built one benchmark, \emph{ExpandPropertiesWithCache}, which computes all interesting properties of the model, common properties with low memory footprint are already cached and other properties are discarded once computed.
+\paragraph{Stable heap.} The stable heap benchmarks perform random memory accesses in a heap whose size remains approximately the same. We built one benchmark, \emph{ExpandPropertiesWithCache}, which computes all interesting properties of the model, common properties with low memory footprint are already cached and other properties are discarded once computed.
 
 \paragraph{Shrinking heap.} The shrinking heap benchmark frees part of the heap and performs a GC. We built only one benchmark, \emph{Release}, which removes references to the graph of objects and performs three garbage collections.
 
 \subsection{Configurable benchmark}
 \label{sec:confBench}
 
-Running a new memory management strategy on real-world applications can give a first insight about its performance. Being able to configure a specific set-up allows to stress specific behaviors of the new implementation.
-This configurable benchmarking tool has been implemented to emulate specific heap structures and states to potentially trigger edge cases. The user has available a set of twelve options which can be sorted in two categories:
+Running a new memory management strategy on real-world applications can give an early insight into its performance. Being able to configure a specific set-up allows stressing specific behaviors of the new implementation.
+This configurable benchmarking tool has been implemented to emulate specific heap structures and states potentially to trigger edge cases. The user has available a set of twelve options which can be sorted into two categories:
 
 \paragraph{Heap structure.} A first set of options allows the user to modify the heap structure, i.e.\ the amount and sizes of objects to allocate and the possible interactions with these objects. \todo{maybe structure is not actually a good term} \cba{Heap characteristics? If you change change title and in previous paragraph}
 
 \begin{itemize}
-\item \emph{wantedAllocatedSize:} the cumulated size (in Kb) of objects that will be allocated.
-\item \emph{minSize and maxSize:} the minimum and maximum size of objects.
+\item \emph{wantedAllocatedSize:} the cumulative size (in Kb) of objects that will be allocated.
+\item \emph{minSize and maxSize:} the minimum and maximum sizes of objects.
 \item \emph{dataObjects, weakStructures, classes, compiledMethods:} the ratio for each of these object types. \cba{Ephemerons}
 \item \emph{accessObjects:} if set to True, access half of the objects allocated on the heap .
 \item \emph{readOnly:} if set to False, modify half of the objects allocated on the heap upon accessing.
 \end{itemize}
 
-\paragraph{Heap state.} The heap state can also be tuned. Once objects have been allocated on the heap according to the selected options, it is possible whether to allocate more objects (growing heap), to release objects that have been previously allocated (shrinking heap), or to stay in the current state and potentially accessing and modifying objects that have been previously allocated (stable heap). These options echoes the 3 benchmarks depicted in Section \ref{sec:mooseBench}\\
+\paragraph{Heap state.} The heap state can also be tuned. Once objects have been allocated on the heap according to the selected options, it is possible to decide whether to allocate more objects (growing heap), to release objects that have been previously allocated (shrinking heap), or to stay in the current state and potentially access and modify objects that have been previously allocated (stable heap). These options echo the 3 benchmarks depicted in Section \ref{sec:mooseBench}\\
 
-We build three benchmarks out of the potential configurations:
+We built three benchmarks out of the potential configurations:
 \begin{itemize}
-\item \emph{FragmentedHeap:} First, objects are allocated on the heap, and some of them are released, leading to a potential memory fragmentation. Then, new objets with a minimum size greater than the new free chunks sizes are allocated.
-\item \emph{LargeObjects:} Only large objets with a size greater than 0xFFFF \sk{put real size in Kb here} are allocated on the heap.
-\item \emph{Data0bjects:} The majority of objects that will be allocated on the heap will be Data objects, which only contains integer of a specific size (in this benchmark, one byte) \cba{I would not say they hold integer. Data objects can theoretically hold float/double for example, of an int used as a bitmap}
+\item \emph{FragmentedHeap:} First, objects are allocated on the heap, and some of them are released, leading to potential memory fragmentation. Then, new objects with a minimum size greater than the new free chunks sizes are allocated.
+\item \emph{LargeObjects:} Only large objects with a size greater than 0xFFFF \sk{put real size in Kb here} are allocated on the heap.
+\item \emph{Data0bjects:} The majority of objects that will be allocated on the heap will be Data objects, which only contains integers of a specific size (in this benchmark, one byte) \cba{I would not say they hold integer. Data objects can theoretically hold float/double for example, of an int used as a bitmap}
 \end{itemize}
 
 \section{Reference Implementations}
@@ -208,21 +210,21 @@ To evaluate new full GC algorithms, we need to compare it against existing algor
 
 \subsection{Mark-Compact}
 
-Cog's Mark-Compact algorithm, named \emph{SpurPlanningCompactor}, implements the classic planning compaction algorithm for Spur.  It uses the fact that there is room for a forwarding pointer in all objects to store the eventual position of an object in the first field. It therefore first locates a large free chunk, or eden or a memory segment, to use as the savedFirstFieldsSpace, which it uses to store the first fields of objects that will be compacted. It then makes at least three passes through the heap.
+Cog's Mark-Compact algorithm, named \emph{SpurPlanningCompactor}, implements the classic planning compaction algorithm for Spur.  It uses the fact that there is room for a forwarding pointer in all objects to store the eventual position of an object in the first field. It therefore first locates a large free chunk, or eden or a memory segment, to use as the savedFirstFieldsSpace, which it uses to store the first fields of objects that will be compacted, these fields being overwritten by each object's eventual position. It then makes at least three passes through the heap.
 
-The first pass plans where live movable objects will go, copying their first field to the next slot in savedFirstFieldsSpace, and setting their forwarding pointer to point to their eventual location (see planCompactSavingForwarders). The second pass updates all pointers in live pointer objects to point to objects' final destinations, including the fields in savedFirstFieldsSpace (see updatePointers and updatePointersInMobileObjects). The third pass moves objects to their final positions, unmarking objects, and restoring saved first fields as it does so (see copyAndUnmark: and copyAndUnmarkMobileObjects). If the forwarding fields of live objects in the to-be-moved portion of the entire heap won't fit in savedFirstFieldsSpace, then additional passes can be made until the entire heap has been compacted.  When snapshotting multiple passes are made, but when doing a normal GC only one pass is made.
+The first pass plans where live movable objects will go, copying the first field to the next slot in savedFirstFieldsSpace, and setting the forwarding pointer to point to the object's eventual location. The second pass updates all pointers in live pointer objects to point to objects' final destinations, including the fields in savedFirstFieldsSpace. The third pass moves objects to their final positions, unmarking objects, and restoring saved first fields as it does so. If the forwarding fields of live objects in the to-be-moved portion of the entire heap won't fit in savedFirstFieldsSpace, then additional passes can be made until the entire heap has been compacted.  When snapshotting (saving the system to a file for later resumption, see below) multiple passes are made, but when doing a normal GC only a single pass is made.
 
-Each pass uses a three finger algorithm, a simple extension of the classic two finger algorithm with an extra finger used to identify the lowest pinned object between the to and from fingers.  Objects are moved down, starting at the first free object or chunk, provided that they fit below the lowest pinned object above the to finger.  When an object won't fit the to finger is moved above the pinned object and the third finger is reset to the next pinned object below the from finger, if any.
+Each pass uses a three finger algorithm, a simple extension of the classic two finger algorithm with an extra middle finger used to refer to the lowest pinned object, if any, between the to and from fingers.  Objects are moved down, starting at the first free object or chunk, provided that they fit below the lowest pinned object above the to finger.  When an object won't fit the to finger is moved above the pinned object and the third finger is reset to the next pinned object below the from finger, if any.  The scheme preserves object order amongst movable objects, making no attempt to fit objects in any gaps left below pinned objects.
 
 \subsection{Mark-Sweep}
 
-Cog's Mark-Compact algorithm, named \emph{SpurSweeper}, is a sweep-only algorithm, setting the compactor to SpurSweeper effectively changes the fullGC to a mark-sweep non-moving algorithm. It iterates over all old space in linear order. Each time an unmarked object or a free chunk is met, it coalesces it with subsequent ones and updates the free lists with a new larger free chunk. 
+Cog's Mark-Sweep algorithm, named \emph{SpurSweeper}, is a sweep-only algorithm.  Setting the compactor to SpurSweeper effectively changes the fullGC to a mark-sweep non-moving algorithm. It iterates over all objects in old space in linear order. Each time an unmarked object or a free chunk is met, it coalesces it with subsequent ones and updates the free lists with a new larger free chunk. 
 
 \subsection{Snapshot discussion}
 
-On top of the Cog VM, snapshots can be performed to persist the given state of the heap. Since snapshots are persisted, they should use a low amount of memory to avoid using too many bytes on disk. Non compacting algorithms, such as the Mark-Sweep, or algorithms compacting only part of the heap, such as garbage first~\cite{G1}, are a problem in this context. The heap, when collected by the Mark-Sweep, has a lot of free chunks when the heap size varies a lot leading to a large snapshot. However, non compacting have also interesting advantages (lower garbage collection pause time for example). 
+On top of the Cog VM, snapshots can be performed to persist the given state of the heap. Since snapshots are persisted, they should use a low amount of memory to avoid using too many bytes on disk. Non compacting algorithms, such as the Mark-Sweep, or algorithms compacting only part of the heap, such as garbage first~\cite{G1}, are a problem in this context. The heap, when collected by the Mark-Sweep, has a lot of free chunks when the heap size varies a lot leading to a large snapshot. However, the non compacting algorithm also has interesting advantages, for  example lower garbage collection pause times. 
 
-To be able to have a garbage collector with a low pause time and still be able to perform efficiently snapshots, we design a hybrid compactor solution. The VM tells the compactor if the garbage collection is performed for snapshot or not, and the compactor chooses to apply one algorithm or the other to have low compaction pause time or to snapshot with a low memory footprint.
+To be able to have a garbage collector with a low pause time and still be able to perform snapshots efficiently, we designed a hybrid compactor solution which includes both SpurSelectiveCompactor and SpurPlanningCompactor. The VM tells the hybrid compactor if the garbage collection is to be performed for snapshot or not, and the compactor chooses to apply one algorithm or the other to achieve either a low compaction pause time or a snapshot with a minimised memory footprint.
 
 \section{Reference Results}
 \label{sec:valid}
@@ -233,7 +235,7 @@ We evaluated both reference algorithms on the benchmarks built.
 \subsection{Moose Benchmarks}
 
 
-\paragraph{Set-up.}The Moose benchmark evaluation was performed on a MacBook pro with Mac OS 10.11.6, a 2.9 Ghz processor Intel Core 5, 8 Gb 1867MHz DDR3 of RAM. The Mac VM was compiled using Apple LLVM version 8.0.0 (clang-800.0.38). The compiled VMs are 64 bits (x64) VMs.
+\paragraph{Set-up.}The Moose benchmark evaluation was performed on a MacBook pro running Mac OS 10.11.6, with a 2.9 Ghz Intel Core i5 processor, and 8 Gb of  1867MHz DDR3 RAM. The Mac VM was compiled using Apple LLVM version 8.0.0 (clang-800.0.38). The compiled VMs are native 64 bit applications with 64-bit objects and pointers.
 
 We evaluated the Moose benchmarks using the reference Mark-Compact and Mark-Sweep algorithms and by analysing the wildfly code base\footnote{http://www.wildfly.org/}. We distinguish four configurations:
 \begin{itemize}
@@ -308,21 +310,21 @@ With a larger eden, more overall memory is used (in our case 90 extra Mb are use
 \end{figure*}
 
 \sk{my benchs relies on the same data (the 2 algorithms) + same explanation of the time (full gc and so on). I would move the shared part in the intro of Section 4 and only keep here the part specific to the Moose bench}
-The results are shown in Figure \ref{MooseRes1} and \ref{MooseRes2}. In the results, the compaction time includes the time spent in the compact phase in the Mark-Compact and in the sweep phase in the Mark-Sweep. Total full GC time is the total time spent in full GCs, including the compaction time. Scavenge time is the time spent in scavenges, \emph{i.e.,} garbage collection of young objects only. Total execution time is the total execution time, including scavenge and full GC time. Scavenge time is drastically smaller with a larger Eden, leading to overall better performance.
+The results are shown in Figure \ref{MooseRes1} and \ref{MooseRes2}. In the results, the compaction time includes the time spent in the compact phase in the Mark-Compact and in the sweep phase in the Mark-Sweep. Total full GC time is the total time spent in full GCs, including  compaction time. Scavenge time is the time spent in scavenges, \emph{i.e.,} garbage collection of young objects only. Total execution time is the total execution time, including scavenge and full GC time. Scavenge time is drastically smaller with a larger Eden, leading to better overall performance.
 
 \paragraph{Load.} The Load benchmark grows the memory by around 700Mb. Compaction time is smaller for the sweep algorithm, making the benchmark a little bit faster in the Mark-Sweep, which is to be expected since Sweep does not need to waste time updating pointers because objects are not moved in memory.
 
 \paragraph{ExpandProperties.} The ExpandProperties benchmark grows the memory by around 1 Gb. Compaction time is a little bit better with the sweep algorithm as for the previous benchmark, but execution time is much worse. We believe this is due to worse locality of objects. With a larger Eden, the scavenge time is much smaller and the execution time is a bit faster due to improved object locality.
 
-\paragraph{ExpandPropertiesWithCache.} The ExpandProperties WithCache benchmark does not increase the overall memory size. Since the compacting GC has compacted the heap before starting the benchmark, there is enough room to allocate the large objects (large objects are allocated directly in old space) required by the benchmark and there is no need for a full GC during the benchmark. However, with the sweep algorithm, there are multiple small available memory chunks which are not big enough to hold all the requested large objects, so a full GC is required. In addition, execution time is worse, as for the previous benchmark. With a larger Eden, the scavenge time is much smaller and the execution time is a way faster due to improved object locality.
+\paragraph{ExpandPropertiesWithCache.} The ExpandPropertiesWithCache benchmark does not increase the overall memory size. Since the compacting GC has compacted the heap before starting the benchmark, there is enough room to allocate the large objects (large objects are allocated directly in old space) required by the benchmark and there is no need for a full GC during the benchmark. However, with the sweep algorithm, there are multiple small free memory chunks which are not big enough to hold all the requested large objects, so a full GC is required. In addition, execution time is worse, as for the previous benchmark. With a larger Eden, the scavenge time is much smaller and the execution time is much faster due to improved object locality.
 
-\paragraph{Release.} The Release benchmark releases all the graphs. With the compacting GC, memory goes back to its original size. With Sweep, multiple memory segments are left with a few live objects, forbidding the OS to reclaim those segments. Hence, the memory decreases drastically, but not to the original size. Compaction time is much faster with Sweep, but as we have discussed, for less efficiency. Changing Eden size has not really any impact here, since it's essentially a pure full GC benchmark.
+\paragraph{Release.} The Release benchmark releases all the graphs. With the compacting GC, memory goes back to its original size. With Sweep, multiple memory segments are left with a few live objects, preventing the Vm from returning those segments to the OS. Hence, the memory decreases drastically, but not to the original size. Compaction time is much faster with Sweep, but as we have discussed, for less efficiency. Changing Eden size has not much, if any, impact here, since it's essentially a pure full GC benchmark.
 
 \subsection{Configurable benchmark}
 
 
 
-\paragraph{Set-up.}The Configurable benchmark evaluation was performed on an Asus Zenbook with Ubuntu 16.04 LTS, a 2.2 Ghz processor Intel Core 5, 8 Gb 1600MHz DDR3 of RAM. The Linux VM was compiled using GCC version 5.4.0. The compiled VMs are 32 bits (x86) VMs.
+\paragraph{Set-up.}The Configurable benchmark evaluation was performed on an Asus Zenbook running Ubuntu 16.04 LTS, with a 2.2 Ghz processor Intel Core i5, and 8 Gb of 1600MHz DDR3 RAM. The Linux VM was compiled using GCC version 5.4.0. The compiled VMs are 32 bit (x86) applications with 32-bit objects and pointers \footnote{Spur uses a common object header for both 32-bit and 64-bit versions, so 32-bit objects still have a 64-bit header and are all aligned on a 64-bit boundary.}
 
 
 We evaluated the configurable benchmarks using the reference Mark-Compact and Mark-Sweep algorithms and by generating specific heap configurations. 
@@ -346,9 +348,9 @@ The results are shown in Figure \ref{ConfigRes1} and \ref{ConfigRes2}
 
 \section{Related and Future Work}
 
-\paragraph{GC benchmark suite.} The DaCapo benchmarks \cite{DacapoBench} is a standard benchmarking suite designed for Java applications. It gathers several open-source benchmarks and run them against specific metrics to assess their potential performance \sk{significance towards} on different aspects of the Java language, typically its memory management and virtual machines.
-With regard to memory management, the eleven benchmarks selected in 2006 (and updated later in 2009, to add three more benchmarks \ref{dacapowebsite} \sk{add ref in bib}) are assessed according to their number of allocated objects and their average size and their maximum number of live objects. The nursery (young space) survival rate is also taken into account, as well as the heap structure through object lifetime behavior.
-These criteria were chosen \sk{rephrase} as significant to asses the performance of memory management. 
+\paragraph{GC benchmark suite.} The DaCapo benchmark suite \cite{DacapoBench} is a standard set of benchmarks designed for Java applications. It gathers together several open-source benchmarks and runs them against specific metrics to assess their potential performance \sk{significance towards} on different aspects of the Java language implementation, typically its memory management and virtual machines.
+With regard to memory management, the eleven benchmarks selected in 2006 (and updated later in 2009 to add three more benchmarks \ref{dacapowebsite} \sk{add ref in bib}) are assessed according to the number of allocated objects, their average size, and the maximum number of live objects. The nursery (new space) survival rate is also taken into account, as well as the heap structure through object lifetime behavior.
+These criteria were identified as significant in assessing the performance of memory management \eem{by whom?}. 
 
 %The part dedicated to memory management focuses on three metrics: allocation demographics, lifetime and live objects. The benchmarks used shows a rich and diverse object lifetime behaviors. --> dacapo allocates more objets, 3 time the live size of SPEC.
 %Heap volume, Heap objects, Mean object size, nursery survival rate.
@@ -360,8 +362,8 @@ These criteria were chosen \sk{rephrase} as significant to asses the performance
 
 
 \paragraph{ACDC-JS.}
-ACDC-JS \cite{ACDCJS} is a configurable \\benchmarking tool designed to specifically measure and stress allocation and deallocation time in the JavaScript memory management model. 
-It builds a heap model based on the behavior of real-time applications and aims at providing significant insights on the JavaScript memory management that cannnot be obtained from standard benchmarking suites. The value of specific heap options can be set by the user. 
+ACDC-JS \cite{ACDCJS} is a configurable \\benchmarking tool designed to measure and stress allocation and deallocation time in the JavaScript memory management model. 
+It builds a heap model based on the behavior of real-time \eem{real world?} applications and aims at providing significant insights into JavaScript memory management that cannot be obtained from standard benchmarking suites. The value of specific heap options can be set by the user. 
 Their study shows the negative impact of object liveness (time between allocation and last access, leading to the objects to be in different spaces in the heap) and deallocation delay on allocation time. It also stresses the trade-offs between memory consumption and allocation latency.
 
 \paragraph{Future work: more benchmarks.}
@@ -372,6 +374,9 @@ We can stress the garbage collector by running the configurable benchmarking too
 
 \paragraph{Future work: more options.}
 The number of options available in the configurable tool is still limited at the moment. We can take advantage of the ACDC-JS implementation, as well as some metrics used in the DaCapo paper, to get a higher number of options and improve the data collected during the benchmark.
+
+\paragraph{Future work: incremental GC.}
+This investigation, including as it does a framework for compaction that includes a new store check, helps us in designing a fully incremental Mark-Sweep-Compact algorithm with very low pause times, suitable for interactive applications such as animation and gaming.
 
 %% Bibliography
 \bibliographystyle{alpha}
