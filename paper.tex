@@ -151,11 +151,9 @@ We evaluated both algorithms on the benchmarks we built to provide results of th
 
 We conclude the paper by discussing some related work, the GC benchmarks suites for Java and the ACDC benchmarks, and some future work.
 
-\cba{Maybe add vspace here not to have the title bottom of page}
-
 \section{Building Benchmarks} \label{sec:bench}
-\sk{isn't it weird to introduce the built benchmarks without explaining *why* they were chosen? Like, why growing, stable, shrinking is significant regarding garbage collection? same for my 3 benchs, why would I chose those 3 bench strategies? I know it is kind of explained in the result section but maybe it is a bit late}
-\cba{Sure, please explain}
+Experience with applications deployed on Cog shows that memory intensive applications often exhibit three distinct regimes.  As an application builds a new data structure the heap grows, and the garbage collector should be biassed to allow growth, rather than to favour performing garbage collection when the current size of the heap is reached.  As an application processes the data structure it has built the heap is stable, at least in its size.  If the application then releases significant storage and continues processing, the garbage collector should favour reclamation, and it is advantageous if it attempts to free up memory segments and return them to the OS.  We have identified, therefore, growing, stable and shrinking regimes, and these are useful abstractions of real application behaviour, which are helpful in designing benchmarks and in providing tuning mechanisms to the system programmer.
+
 To build GC benchmarks, we took two approaches. We asked companies for their deployed memory intensive applications and turned them into benchmarks. Multiple benchmarks in this category include closed-source code. In Section \ref{sec:mooseBench}, we describe how we turned a specific application into a benchmark with the help of the company (this specific benchmark does not include closed-source code). Then, to stress the GC on specific aspects, we built a configurable benchmark that based on the configuration emulates heaps with different properties. 
 
 \subsection{Moose benchmark} \label{sec:mooseBench}
