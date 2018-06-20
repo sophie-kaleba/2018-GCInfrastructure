@@ -191,7 +191,6 @@ This configurable benchmarking tool has been implemented to emulate specific hea
 
 We built two benchmarks out of the potential configurations:
 \begin{itemize}
-%\item \emph{FragmentedHeap:} First, objects are allocated on the heap, and some of them are released, leading to potential memory fragmentation. Then, new objects with a minimum size greater than the new free chunks sizes are allocated.
 \item \emph{LargeObjects:} Only large objects with a size greater than 65535 32-bit machine words are allocated on the heap. These objects are allocated directly in the old space.
 \item \emph{Data0bjects:} The majority of the objects that will be allocated on the heap will be Data objects, which will only contain one-byte-sized integers in this benchmark. Data Objects are raw data objects, which can be used, for example, to store characters, restricted-range integers, floats, etc: the garbage collector will not go through their slots in the marking phase.
 \end{itemize}
@@ -228,7 +227,7 @@ To be able to have a garbage collector with a low pause time and still be able t
 
 We evaluated both reference algorithms on the benchmarks built. 
 
-In the results, the compaction time includes the time spent in the compact phase in the Mark-Compact and in the sweep phase in the Mark-Sweep. Total full GC time is the total time spent in full GCs, including  compaction time. Scavenge time is the time spent in scavenges, \emph{i.e.,} garbage collection of young objects only. Total execution time is the total execution time, including scavenge and full GC time. Scavenge time is drastically smaller with a larger Eden, leading to better overall performance.
+In the results, the compaction time includes the time spent in the compact phase in the Mark-Compact and in the sweep phase in the Mark-Sweep. Total full GC time is the total time spent in full GCs, including  compaction time. Scavenge time is the time spent in scavenging, \emph{i.e.,} garbage collection of young objects only. Total execution time is the total execution time, including scavenge and full GC time. Scavenge time is drastically smaller with a larger Eden, leading to better overall performance.
 
 \subsection{Moose Benchmarks}
 
@@ -315,7 +314,6 @@ The results are shown in Figure \ref{MooseRes1} and \ref{MooseRes2}.
 
 \paragraph{Release.} The Release benchmark releases all the graphs. With the compacting GC, memory goes back to its original size. With Sweep, multiple memory segments are left with a few live objects, preventing the VM from returning those segments to the OS. Hence, the memory decreases drastically, but not to the original size. Compaction time is much faster with Sweep, but as we have discussed, for less efficiency. Changing Eden size has little if any impact here, since it's essentially a pure full GC benchmark.
 
-\subsection{Configurable Benchmark}
 
 \begin{figure*}[b!]
 	\centering
@@ -355,15 +353,16 @@ The results are shown in Figure \ref{MooseRes1} and \ref{MooseRes2}.
 \caption{Configurable benchmark results with standard errors.} \label{ConfigRes2}
 \end{figure*}
 
+
+\subsection{Configurable Benchmark}
+
 \paragraph{Set-up.}The Configurable Benchmark evaluation was performed on an Asus Zenbook running Ubuntu 18.04 LTS, with a 2.2 Ghz processor Intel Core i5, and 8 Gb of 1600MHz DDR3 RAM. The Linux VM was compiled using GCC version 5.4.0. The compiled VMs are 32-bit (x86) applications with 32-bit objects and pointers. \footnote{Spur uses a common object header for both 32-bit and 64-bit versions, so 32-bit objects still have a 64-bit header and are all aligned on a 64-bit boundary.}
+
 
 We evaluated the configurable benchmarks using the reference Mark-Compact and Mark-Sweep algorithms and by generating specific heap configurations. 
 The results are shown in Figure \ref{ConfigRes1} and \ref{ConfigRes2}
 
-%\paragraph{FragmentedHeap.} The fragmented heap benchmark allocates objects of 300 slots maximum, releases half of them, and re-allocates half of the amount of objects with a minimum size of 600 slots.
-
-
-\paragraph{LargeObjects.} The LargeObjects benchmark allocates objects larger than 65535 32-bits machine words. The time spent in scavenges is therefore lower than with smaller objects (that are not allocated in the old space at first). Allocating large objects has an impact on the number operations of memory growing and shrinking, which can be lowered by tuning the associated parameters in the VM. In this example, the New-Mem cases have memory segments four times bigger, and four empty segments are available instead of one.
+\paragraph{LargeObjects.} The LargeObjects benchmark allocates objects larger than 65535 32-bit machine words. The time spent in scavenging is therefore lower. Allocating large objects has an impact on the number of memory growing and shrinking operations, which can be altered by tuning the associated parameters in the VM. 
 \paragraph{Data0bjects.} The DataObjects benchmark allocates a large amount of data objects on the heap (90\% of all allocated objects during the benchmark). The time spent in full GC's and the compaction time are lower in comparison with a case with 40\% of Data Objects. This can be explained because less time is spent in the marking and pointer update phases.
 
 \section{Related and Future Work}
