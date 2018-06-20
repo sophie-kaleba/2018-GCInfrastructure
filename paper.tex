@@ -143,8 +143,7 @@ Building and tuning a new GC algorithm requires evaluating its behavior. A bench
 
 First, we contacted multiple companies looking for use of the Cog VM in production with memory intensive applications (>1Gb heaps) and built benchmarks out of one of their deployed applications. As an example, we will discuss in the paper in Section \ref{sec:mooseBench} the Moose benchmarks implemented with the help of Feenk\footnote{https://feenk.com/}. Part of the business of Feenk consists in analysing software written in multiple programming languages using the open-source framework Moose~\cite{MoosePaper1,MooseBook1}. Using Moose, the application parses the software to analyse into a model, performs analysis on it and lastly releases the model. Models currently used are encoded in up to 11Gb. This behavior was turned into three benchmarks, growing, accessing and shrinking the heap. 
 
-Second, we implemented a configurable benchmark: the idea is to set-up specific heap structures that will stress the garbage collector. A set of options is available to the user to tune the type of allocated objects and some of their features. These options can be associated with different heap states: growing, stable or shrinking, like in our other approach. \todo{fin a ref}
-\sk{add the case we benchmarked with this approach}
+Second, we implemented a configurable benchmark: the idea is to set-up specific heap characteristics that will stress the garbage collector. A set of options is available to the user to tune the type of allocated objects and some of their features. These options can be associated with different heap states: growing, stable or shrinking, like in our other approach. We ran three benchmark cases with this tool: fragmented heap, large objects in heap and majority of data objects in heap.
 This implementation and the use-cases are detailed in Section \ref{sec:confBench}
 
 To evaluate a new algorithm, we also need to compare it to reference implementations. The Cog VM features a Mark-Compact algorithm used in production. The compaction phase is quite specific since it slides objects down in memory while handling pinned objects and spends time updating references to point to their eventual locations. In addition to this algorithm, we implemented a Mark-Sweep, which does not move objects in memory and is thus quicker to perform. Section \ref{sec:ref} details the two implementations.
@@ -182,14 +181,14 @@ We built four different benchmarks that fall into three categories: growing, sta
 \label{sec:confBench}
 
 Running a new memory management strategy on real-world applications can give an early insight into its performance. Being able to configure a specific set-up allows stressing specific behaviors of the new implementation.
-This configurable benchmarking tool has been implemented to emulate specific heap structures and states potentially to trigger edge cases. The user has available a set of twelve options which can be sorted into two categories:
+This configurable benchmarking tool has been implemented to emulate specific heap characteristics and states potentially to trigger edge cases. The user has available a set of twelve options which can be sorted into two categories:
 
-\paragraph{Heap structure.} A first set of options allows the user to modify the heap structure, i.e.\ the amount and sizes of objects to allocate and the possible interactions with these objects. \todo{maybe structure is not actually a good term} \cba{Heap characteristics? If you change change title and in previous paragraph}
+\paragraph{Heap characteristics.} A first set of options allows the user to modify the heap characteristics, i.e.\ the amount and sizes of objects to allocate and the possible interactions with these objects. 
 
 \begin{itemize}
 \item \emph{wantedAllocatedSize:} the cumulative size (in Kb) of objects that will be allocated.
 \item \emph{minSize and maxSize:} the minimum and maximum sizes of objects.
-\item \emph{dataObjects, weakStructures, classes, compiledMethods:} the ratio for each of these object types. \cba{Ephemerons}
+\item \emph{dataObjects, weakStructures, classes, compiledMethods, ephemerons:} the ratio for each of these object types.
 \item \emph{accessObjects:} if set to True, access half of the objects allocated on the heap .
 \item \emph{readOnly:} if set to False, modify half of the objects allocated on the heap upon accessing.
 \end{itemize}
@@ -200,7 +199,7 @@ We built three benchmarks out of the potential configurations:
 \begin{itemize}
 \item \emph{FragmentedHeap:} First, objects are allocated on the heap, and some of them are released, leading to potential memory fragmentation. Then, new objects with a minimum size greater than the new free chunks sizes are allocated.
 \item \emph{LargeObjects:} Only large objects with a size greater than 0xFFFF \sk{put real size in Kb here} are allocated on the heap.
-\item \emph{Data0bjects:} The majority of objects that will be allocated on the heap will be Data objects, which only contains integers of a specific size (in this benchmark, one byte) \cba{I would not say they hold integer. Data objects can theoretically hold float/double for example, of an int used as a bitmap}
+\item \emph{Data0bjects:} The majority of objects that will be allocated on the heap will be Data objects, which will only contains one-byte-sized integers of a specific size in this benchmark  
 \end{itemize}
 
 \section{Reference Implementations}
@@ -229,8 +228,9 @@ To be able to have a garbage collector with a low pause time and still be able t
 \section{Reference Results}
 \label{sec:valid}
 
-We evaluated both reference algorithms on the benchmarks built.
-\sk{shouldn't we talk about our set-ups? or maybe not because the 2 benchs were run on different computers ?}
+We evaluated both reference algorithms on the benchmarks built. 
+
+In the results, the compaction time includes the time spent in the compact phase in the Mark-Compact and in the sweep phase in the Mark-Sweep. Total full GC time is the total time spent in full GCs, including  compaction time. Scavenge time is the time spent in scavenges, \emph{i.e.,} garbage collection of young objects only. Total execution time is the total execution time, including scavenge and full GC time. Scavenge time is drastically smaller with a larger Eden, leading to better overall performance.
 
 \subsection{Moose Benchmarks}
 
@@ -269,7 +269,7 @@ With a larger eden, more overall memory is used (in our case 90 extra Mb are use
 	\end{subfigure}\hspace{0.03\textwidth}%
 	   	\begin{subfigure}[b]{.48\textwidth}
 	\includegraphics[width=\linewidth]{figures/release} 
-	\caption{release}
+	\caption{Release}
    	\end{subfigure}
 
    	   	    	
@@ -309,14 +309,13 @@ With a larger eden, more overall memory is used (in our case 90 extra Mb are use
 \label{MooseRes2}
 \end{figure*}
 
-\sk{my benchs relies on the same data (the 2 algorithms) + same explanation of the time (full gc and so on). I would move the shared part in the intro of Section 4 and only keep here the part specific to the Moose bench}
-The results are shown in Figure \ref{MooseRes1} and \ref{MooseRes2}. In the results, the compaction time includes the time spent in the compact phase in the Mark-Compact and in the sweep phase in the Mark-Sweep. Total full GC time is the total time spent in full GCs, including  compaction time. Scavenge time is the time spent in scavenges, \emph{i.e.,} garbage collection of young objects only. Total execution time is the total execution time, including scavenge and full GC time. Scavenge time is drastically smaller with a larger Eden, leading to better overall performance.
+The results are shown in Figure \ref{MooseRes1} and \ref{MooseRes2}. 
 
 \paragraph{Load.} The Load benchmark grows the memory by around 700Mb. Compaction time is smaller for the sweep algorithm, making the benchmark a little bit faster in the Mark-Sweep, which is to be expected since Sweep does not need to waste time updating pointers because objects are not moved in memory.
 
 \paragraph{ExpandProperties.} The ExpandProperties benchmark grows the memory by around 1 Gb. Compaction time is a little bit better with the sweep algorithm as for the previous benchmark, but execution time is much worse. We believe this is due to worse locality of objects. With a larger Eden, the scavenge time is much smaller and the execution time is a bit faster due to improved object locality.
 
-\paragraph{ExpandPropertiesWithCache.} The ExpandPropertiesWithCache benchmark does not increase the overall memory size. Since the compacting GC has compacted the heap before starting the benchmark, there is enough room to allocate the large objects (large objects are allocated directly in old space) required by the benchmark and there is no need for a full GC during the benchmark. However, with the sweep algorithm, there are multiple small free memory chunks which are not big enough to hold all the requested large objects, so a full GC is required. In addition, execution time is worse, as for the previous benchmark. With a larger Eden, the scavenge time is much smaller and the execution time is much faster due to improved object locality.
+\paragraph{ExpandPropertiesWithCache.} The ExpandProperties WithCache benchmark does not increase the overall memory size. Since the compacting GC has compacted the heap before starting the benchmark, there is enough room to allocate the large objects (large objects are allocated directly in old space) required by the benchmark and there is no need for a full GC during the benchmark. However, with the sweep algorithm, there are multiple small free memory chunks which are not big enough to hold all the requested large objects, so a full GC is required. In addition, execution time is worse, as for the previous benchmark. With a larger Eden, the scavenge time is much smaller and the execution time is much faster due to improved object locality.
 
 \paragraph{Release.} The Release benchmark releases all the graphs. With the compacting GC, memory goes back to its original size. With Sweep, multiple memory segments are left with a few live objects, preventing the Vm from returning those segments to the OS. Hence, the memory decreases drastically, but not to the original size. Compaction time is much faster with Sweep, but as we have discussed, for less efficiency. Changing Eden size has not much, if any, impact here, since it's essentially a pure full GC benchmark.
 
@@ -324,23 +323,26 @@ The results are shown in Figure \ref{MooseRes1} and \ref{MooseRes2}. In the resu
 
 
 
-\paragraph{Set-up.}The Configurable benchmark evaluation was performed on an Asus Zenbook running Ubuntu 16.04 LTS, with a 2.2 Ghz processor Intel Core i5, and 8 Gb of 1600MHz DDR3 RAM. The Linux VM was compiled using GCC version 5.4.0. The compiled VMs are 32 bit (x86) applications with 32-bit objects and pointers \footnote{Spur uses a common object header for both 32-bit and 64-bit versions, so 32-bit objects still have a 64-bit header and are all aligned on a 64-bit boundary.}
+\paragraph{Set-up.}The Configurable benchmark evaluation was performed on an Asus Zenbook running Ubuntu 18.04 LTS, with a 2.2 Ghz processor Intel Core i5, and 8 Gb of 1600MHz DDR3 RAM. The Linux VM was compiled using GCC version 5.4.0. The compiled VMs are 32 bit (x86) applications with 32-bit objects and pointers \footnote{Spur uses a common object header for both 32-bit and 64-bit versions, so 32-bit objects still have a 64-bit header and are all aligned on a 64-bit boundary.}
 
 
 We evaluated the configurable benchmarks using the reference Mark-Compact and Mark-Sweep algorithms and by generating specific heap configurations. 
 The results are shown in Figure \ref{ConfigRes1} and \ref{ConfigRes2}
 
 \paragraph{FragmentedHeap.} 
+allocate n objects of size x, release half of them, and reallocate n/2 objects of size y>x. Compare the performance (time spent in full GC, scavenges, compacting, and execution time) for both Mark-Sweep and Mark-Compact
 \begin{itemize}
 \item impact on memory size and numbers of segments
 \item impact on execution time 
 \end{itemize}
 \paragraph{LargeObjects.}
+allocate objects larger than 0xffff. Compare two VMs with different number of segments.
 \begin{itemize}
 \item impact on memory size 
 \item impact on number of scavenges and number of full GC's
 \end{itemize}
 \paragraph{Data0bjects.}
+ allocate a lot of data objects (90\% of all allocated objects during the bench). Compare for Mark-Sweep and Mark-Compact
 \begin{itemize}
 \item impact on memory size
 \item impact on overall time (full gc, compaction time)
@@ -348,8 +350,8 @@ The results are shown in Figure \ref{ConfigRes1} and \ref{ConfigRes2}
 
 \section{Related and Future Work}
 
-\paragraph{GC benchmark suite.} The DaCapo benchmark suite \cite{DacapoBench} is a standard set of benchmarks designed for Java applications. It gathers together several open-source benchmarks and runs them against specific metrics to assess their potential performance \sk{significance towards} on different aspects of the Java language implementation, typically its memory management and virtual machines.
-With regard to memory management, the eleven benchmarks selected in 2006 (and updated later in 2009 to add three more benchmarks \ref{dacapowebsite} \sk{add ref in bib}) are assessed according to the number of allocated objects, their average size, and the maximum number of live objects. The nursery (new space) survival rate is also taken into account, as well as the heap structure through object lifetime behavior.
+\paragraph{GC benchmark suite.} The DaCapo benchmark suite \cite{DacapoBench} is a standard set of benchmarks designed for Java applications. It gathers together several open-source benchmarks and runs them against specific metrics to assess their potential significance towards different aspects of the Java language implementation, typically its memory management and virtual machines.
+With regard to memory management, the eleven benchmarks selected in 2006 (and updated later in 2009 to add three more benchmarks \cite{DaCapo}) are assessed according to the number of allocated objects, their average size, and the maximum number of live objects. The nursery (new space) survival rate is also taken into account, as well as the heap structure through object lifetime behavior.
 These criteria were identified as significant in assessing the performance of memory management \eem{by whom?}. 
 
 %The part dedicated to memory management focuses on three metrics: allocation demographics, lifetime and live objects. The benchmarks used shows a rich and diverse object lifetime behaviors. --> dacapo allocates more objets, 3 time the live size of SPEC.
@@ -363,7 +365,7 @@ These criteria were identified as significant in assessing the performance of me
 
 \paragraph{ACDC-JS.}
 ACDC-JS \cite{ACDCJS} is a configurable \\benchmarking tool designed to measure and stress allocation and deallocation time in the JavaScript memory management model. 
-It builds a heap model based on the behavior of real-time \eem{real world?} applications and aims at providing significant insights into JavaScript memory management that cannot be obtained from standard benchmarking suites. The value of specific heap options can be set by the user. 
+It builds a heap model based on the behavior of real-world applications and aims at providing significant insights into JavaScript memory management that cannot be obtained from standard benchmarking suites. The value of specific heap options can be set by the user. 
 Their study shows the negative impact of object liveness (time between allocation and last access, leading to the objects to be in different spaces in the heap) and deallocation delay on allocation time. It also stresses the trade-offs between memory consumption and allocation latency.
 
 \paragraph{Future work: more benchmarks.}
