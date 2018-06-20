@@ -172,7 +172,7 @@ We built four different benchmarks that fall into three categories: growing, sta
 
 \paragraph{Shrinking heap.} The shrinking heap benchmark frees part of the heap and performs a GC. We built only one benchmark, \emph{Release}, which removes references to the graph of objects and performs three garbage collections.
 
-\subsection{Configurable benchmark} \label{sec:confBench}
+\subsection{Configurable Benchmark} \label{sec:confBench}
 
 Running a new memory management strategy on real-world applications can give an early insight into its performance. Being able to configure a specific set-up allows stressing specific behaviors of the new implementation.
 This configurable benchmarking tool has been implemented to emulate specific heap characteristics and states potentially to trigger edge cases. The user has available a set of twelve options which can be sorted into two categories:
@@ -312,11 +312,11 @@ The results are shown in Figure \ref{MooseRes1} and \ref{MooseRes2}.
 
 \paragraph{Release.} The Release benchmark releases all the graphs. With the compacting GC, memory goes back to its original size. With Sweep, multiple memory segments are left with a few live objects, preventing the VM from returning those segments to the OS. Hence, the memory decreases drastically, but not to the original size. Compaction time is much faster with Sweep, but as we have discussed, for less efficiency. Changing Eden size has little if any impact here, since it's essentially a pure full GC benchmark.
 
-\subsection{Configurable benchmark}
+\subsection{Configurable Benchmark}
 
 
 
-\paragraph{Set-up.}The Configurable benchmark evaluation was performed on an Asus Zenbook running Ubuntu 18.04 LTS, with a 2.2 Ghz processor Intel Core i5, and 8 Gb of 1600MHz DDR3 RAM. The Linux VM was compiled using GCC version 5.4.0. The compiled VMs are 32 bit (x86) applications with 32-bit objects and pointers. \footnote{Spur uses a common object header for both 32-bit and 64-bit versions, so 32-bit objects still have a 64-bit header and are all aligned on a 64-bit boundary.}
+\paragraph{Set-up.}The Configurable Benchmark evaluation was performed on an Asus Zenbook running Ubuntu 18.04 LTS, with a 2.2 Ghz processor Intel Core i5, and 8 Gb of 1600MHz DDR3 RAM. The Linux VM was compiled using GCC version 5.4.0. The compiled VMs are 32 bit (x86) applications with 32-bit objects and pointers. \footnote{Spur uses a common object header for both 32-bit and 64-bit versions, so 32-bit objects still have a 64-bit header and are all aligned on a 64-bit boundary.}
 
 
 We evaluated the configurable benchmarks using the reference Mark-Compact and Mark-Sweep algorithms and by generating specific heap configurations. 
