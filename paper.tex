@@ -134,8 +134,7 @@ One of the next steps to improve Cog, the default virtual machine for multiple p
 
 \maketitle
 
-\section{Introduction}
-\label{sec:intro}
+\section{Introduction} \label{sec:intro}
 
 The Cog virtual machine (VM), the default VM for multiple programming languages such Pharo \cite{PharoByExample}, Squeak \cite{SqueakByExample} and Newspeak \cite{NewspeakOopsla}, currently features in production a stop-the-world Mark-Compact algorithm as the full garbage collector (GC) algorithm. The algorithm has a high throughput but a high pause time during which the application is not responsive (the GC interrupts the application for multiple seconds on modern Macbooks starting from multiple Gbs heaps). For interactive applications, a new algorithm is required with a smaller pause time.
 
@@ -154,14 +153,12 @@ We conclude the paper by discussing some related work, the GC benchmarks suites 
 
 \cba{Maybe add vspace here not to have the title bottom of page}
 
-\section{Building Benchmarks}
-\label{sec:bench}
+\section{Building Benchmarks} \label{sec:bench}
 \sk{isn't it weird to introduce the built benchmarks without explaining *why* they were chosen? Like, why growing, stable, shrinking is significant regarding garbage collection? same for my 3 benchs, why would I chose those 3 bench strategies? I know it is kind of explained in the result section but maybe it is a bit late}
 \cba{Sure, please explain}
 To build GC benchmarks, we took two approaches. We asked companies for their deployed memory intensive applications and turned them into benchmarks. Multiple benchmarks in this category include closed-source code. In Section \ref{sec:mooseBench}, we describe how we turned a specific application into a benchmark with the help of the company (this specific benchmark does not include closed-source code). Then, to stress the GC on specific aspects, we built a configurable benchmark that based on the configuration emulates heaps with different properties. 
 
-\subsection{Moose benchmark}
-\label{sec:mooseBench}
+\subsection{Moose benchmark} \label{sec:mooseBench}
 
 Part of the business of Feenk consists in analyzing large software systems. To do so, the application parses a mse file into a model, performs some analysis, and then releases the model and generates analysis results. For business, the application analyzes closed-sourced application of companies. To build an open-source benchmark, we analyse open-source applications instead of closed-source ones.
 
@@ -177,8 +174,7 @@ We built four different benchmarks that fall into three categories: growing, sta
 
 \paragraph{Shrinking heap.} The shrinking heap benchmark frees part of the heap and performs a GC. We built only one benchmark, \emph{Release}, which removes references to the graph of objects and performs three garbage collections.
 
-\subsection{Configurable benchmark}
-\label{sec:confBench}
+\subsection{Configurable benchmark} \label{sec:confBench}
 
 Running a new memory management strategy on real-world applications can give an early insight into its performance. Being able to configure a specific set-up allows stressing specific behaviors of the new implementation.
 This configurable benchmarking tool has been implemented to emulate specific heap characteristics and states potentially to trigger edge cases. The user has available a set of twelve options which can be sorted into two categories:
@@ -202,12 +198,12 @@ We built three benchmarks out of the potential configurations:
 \item \emph{Data0bjects:} The majority of objects that will be allocated on the heap will be Data objects, which will only contains one-byte-sized integers of a specific size in this benchmark  
 \end{itemize}
 
-\section{Reference Implementations}
-\label{sec:ref}
+\section{Reference Implementations} \label{sec:ref}
 
 To evaluate new full GC algorithms, we need to compare it against existing algorithms. Two of the most common GC algorithms are Mark-Compact and Mark-Sweep. We describe here the current Mark-Compact implementation, which has been in production for the past few years, and an implementation of Mark-Sweep we introduced as a reference earlier this year. 
 
-\subsection{Mark-Compact}
+\subsection{Mark-Compact} \label{sec:refmc}
+
 
 Cog's Mark-Compact algorithm, named \emph{SpurPlanningCompactor}, implements the classic planning compaction algorithm for Spur.  It uses the fact that there is room for a forwarding pointer in all objects to store the eventual position of an object in the first field. It therefore first locates a large free chunk, or eden or a memory segment, to use as the savedFirstFieldsSpace, which it uses to store the first fields of objects that will be compacted, these fields being overwritten by each object's eventual position. It then makes at least three passes through the heap.
 
@@ -215,7 +211,7 @@ The first pass plans where live movable objects will go, copying the first field
 
 Each pass uses a three finger algorithm, a simple extension of the classic two finger algorithm with an extra middle finger used to refer to the lowest pinned object, if any, between the to and from fingers.  Objects are moved down, starting at the first free object or chunk, provided that they fit below the lowest pinned object above the to finger.  When an object won't fit the to finger is moved above the pinned object and the third finger is reset to the next pinned object below the from finger, if any.  The scheme preserves object order amongst movable objects, making no attempt to fit objects in any gaps left below pinned objects.
 
-\subsection{Mark-Sweep}
+\subsection{Mark-Sweep} \label{sec:refms}
 
 Cog's Mark-Sweep algorithm, named \emph{SpurSweeper}, is a sweep-only algorithm.  Setting the compactor to SpurSweeper effectively changes the fullGC to a mark-sweep non-moving algorithm. It iterates over all objects in old space in linear order. Each time an unmarked object or a free chunk is met, it coalesces it with subsequent ones and updates the free lists with a new larger free chunk. 
 
@@ -225,8 +221,7 @@ On top of the Cog VM, snapshots can be performed to persist the given state of t
 
 To be able to have a garbage collector with a low pause time and still be able to perform snapshots efficiently, we designed a hybrid compactor solution which includes both SpurSelectiveCompactor and SpurPlanningCompactor. The VM tells the hybrid compactor if the garbage collection is to be performed for snapshot or not, and the compactor chooses to apply one algorithm or the other to achieve either a low compaction pause time or a snapshot with a minimised memory footprint.
 
-\section{Reference Results}
-\label{sec:valid}
+\section{Reference Results} \label{sec:valid}
 
 We evaluated both reference algorithms on the benchmarks built. 
 
@@ -273,8 +268,7 @@ With a larger eden, more overall memory is used (in our case 90 extra Mb are use
    	\end{subfigure}
 
    	   	    	
-\caption{Moose benchmark results piled up (in ms).}
-\label{MooseRes1}
+\caption{Moose benchmark results piled up (in ms).} \label{MooseRes1}
 \end{figure*}
 
 \begin{figure*}[thb]
@@ -305,8 +299,7 @@ With a larger eden, more overall memory is used (in our case 90 extra Mb are use
     				    & Sweep-16 		& 610 $\pm$ 1 			&	0 $\pm$ 0 		& 610 $\pm$ 1 		&314 $\pm$ 2 			& 2011 $\pm$ 0 		& 535 $\pm$ 203 \\
    \hline
 \end{tabular} 
-\caption{Moose benchmark results with standard errors.}
-\label{MooseRes2}
+\caption{Moose benchmark results with standard errors.} \label{MooseRes2}
 \end{figure*}
 
 The results are shown in Figure \ref{MooseRes1} and \ref{MooseRes2}. 
