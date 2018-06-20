@@ -213,7 +213,10 @@ Each pass uses a three finger algorithm, a simple extension of the classic two f
 
 \subsection{Mark-Sweep} \label{sec:refms}
 
-Cog's Mark-Sweep algorithm, named \emph{SpurSweeper}, is a sweep-only algorithm.  Setting the compactor to SpurSweeper effectively changes the fullGC to a mark-sweep non-moving algorithm. It iterates over all objects in old space in linear order. Each time an unmarked object or a free chunk is met, it coalesces it with subsequent ones and updates the free lists with a new larger free chunk. 
+Cog's Mark-Sweep algorithm, named \emph{SpurSweeper}, is a sweep-only algorithm.  Setting the compactor to SpurSweeper effectively changes the fullGC to a mark-sweep non-moving algorithm. It iterates over all objects in old space in linear order. Each time an unmarked object or a free chunk is met, it coalesces it with subsequent ones and updates the free lists with a new larger free chunk.
+
+\subsection{Mark-SelectiveCompact}
+We added a new algorithm designed to reduce the pause time due to compaction.  This algorithm, to be described fully elsewhere, chooses sparsely populated segments and compacts these to an empty segment to reduce fragmentation.  It relies on Spur's implicit following of forwarding pointers to update references to moved objects without requiring a complete pass over the heap. 
 
 \subsection{Snapshot discussion}
 
