@@ -360,9 +360,17 @@ The results are shown in Figure \ref{MooseRes1} and \ref{MooseRes2}.
 
 
 We evaluated the configurable benchmarks using the reference Mark-Compact and Mark-Sweep algorithms and by generating specific heap configurations. 
-The results are shown in Figure \ref{ConfigRes1} and \ref{ConfigRes2}
+The results are shown in Figure \ref{ConfigRes1} and \ref{ConfigRes2}.
 
-\paragraph{LargeObjects.} The LargeObjects benchmark allocates objects larger than 65535 32-bit machine words. The time spent in scavenging is therefore lower. Allocating large objects has an impact on the number of memory growing and shrinking operations, which can be altered by tuning the associated parameters in the VM. 
+\paragraph{LargeObjects.} The LargeObjects benchmark compare the time spent in garbage collection according to the size of allocated objects.
+ We distinguish four configurations:
+\begin{itemize}
+\item \emph{Small}: VM with standard GC parameters and the Mark-Compact algorithm. Objects smaller than 65535 32-bit machine words are allocated.
+\item \emph{Small-NewMem}: VM with standard GC parameters, except segments size which is 4 times larger, the number of empty segments which is multiplied by 4, and the Mark-Compact algorithm. Objects smaller than 65535 32-bit machine words are allocated.
+\item \emph{Large}: VM with standard GC parameters and the Mark-Compact algorithm. Objects larger than 65535 32-bit machine words are allocated.
+\item \emph{Large-NewMem}: VM with standard GC parameters, except segments size which is 4 times larger, the number of empty segments which is multiplied by 4, and the Mark-Compact algorithm. Objects larger than 65535 32-bit machine words are allocated.
+\end{itemize}
+The time spent in scavenging is lower for the larger objects. Allocating large objects has an impact on the number of memory growing and shrinking operations, which can be altered by tuning the associated parameters in the VM. 
 \paragraph{Data0bjects.} The DataObjects benchmark allocates a large amount of data objects on the heap (90\% of all allocated objects during the benchmark). The time spent in full GC's and the compaction time are lower in comparison with a case with 40\% of Data Objects. This can be explained because less time is spent in the marking and pointer update phases.
 
 \section{Related and Future Work}
