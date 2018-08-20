@@ -91,7 +91,7 @@
 \affiliation{
   %\position{Position1}
   \department{Masters student}              %% \department is recommended
-  \institution{Universit\'e de Lille 1}            %% \institution is required
+  \institution{Universit\'e Lille 1}            %% \institution is required
  % \streetaddress{Street1 Address1}
   \city{Lille}
   %\state{France}
@@ -158,7 +158,7 @@ To build GC benchmarks, we took two approaches. We asked companies for their dep
 
 \subsection{Moose benchmark} \label{sec:mooseBench}
 
-Part of the business of Feenk consists in analyzing large software systems. To do so, the application parses a mse file into a model, performs some analysis, and then releases the model and generates analysis results. For business, the application analyzes closed-sourced application of companies. To build an open-source benchmark, we analyse open-source applications instead of closed-source ones.
+Part of the business of Feenk consists in analyzing large software systems. To do so, the application parses a mse file into a model (mse is the default file format supported by Moose), performs some analysis, and then releases the model and generates analysis results. For business, the application analyzes closed-sourced application of companies. To build an open-source benchmark, we analyse open-source applications instead of closed-source ones.
 
 We built four different benchmarks that fall into three categories: growing, stable and shrinking heaps. The benchmarks were built on top of the stable Moose image\footnote{http://www.moosetechnology.org/}.
 
@@ -204,11 +204,11 @@ Cog is written to allow new object representations to be written and used.  Spur
 \subsection{Mark-Compact} \label{sec:refmc}
 
 
-Cog's Mark-Compact algorithm, named \emph{SpurPlanningCompactor}, implements the classic planning compaction algorithm for Spur.  It uses the fact that there is room for a forwarding pointer in all objects to store the eventual position of an object in the first field. It therefore first locates a large free chunk, or Eden or a memory segment, to use as the savedFirstFieldsSpace, which it uses to store the first fields of objects that will be compacted, these fields being overwritten by each object's eventual position. It then makes at least three passes through the heap.
+Cog's Mark-Compact algorithm, named \emph{SpurPlanningCompactor}, implements the classic planning compaction algorithm for Spur.  It uses the fact that there is room for a forwarding pointer in all objects to store the eventual position of an object in the first field. It therefore first locates a large free chunk, or the Eden space or a memory segment, to use as the savedFirstFieldsSpace, which it uses to store the first fields of objects that will be compacted, these fields being overwritten by each object's eventual position. It then makes at least three passes through the heap.
 
 The first pass plans where live movable objects will go, copying the first field to the next slot in savedFirstFieldsSpace, and setting the forwarding pointer to point to the object's eventual location. The second pass updates all pointers in live pointer objects to point to objects' final destinations, including the fields in savedFirstFieldsSpace. The third pass moves objects to their final positions, unmarking objects, and restoring saved first fields as it does so. If the forwarding fields of live objects in the to-be-moved portion of the entire heap won't fit in savedFirstFieldsSpace, then additional passes can be made until the entire heap has been compacted.  When snapshotting (saving the system to a file for later resumption, see below) multiple passes are made, but when doing a normal GC only a single pass is made.
 
-Each pass uses a three finger algorithm, a simple extension of the classic two finger algorithm with an extra middle finger used to refer to the lowest pinned object, if any, between the to and from fingers.  Objects are moved down, starting at the first free object or chunk, provided that they fit below the lowest pinned object above the to finger.  When an object won't fit the to finger is moved above the pinned object and the third finger is reset to the next pinned object below the from finger, if any.  The scheme preserves object order amongst movable objects, making no attempt to fit objects in any gaps left below pinned objects.
+Each pass uses a three finger algorithm, a simple extension of the classic two finger algorithm \cite{Cheney} with an extra middle finger used to refer to the lowest pinned object, if any, between the to and from fingers.  Objects are moved down, starting at the first free object or chunk, provided that they fit below the lowest pinned object above the to finger.  When an object won't fit the to finger is moved above the pinned object and the third finger is reset to the next pinned object below the from finger, if any.  The scheme preserves object order amongst movable objects, making no attempt to fit objects in any gaps left below pinned objects.
 
 \subsection{Mark-Sweep} \label{sec:refms}
 
@@ -254,7 +254,7 @@ With a larger Eden, more overall memory is used (in our case an extra 90 Mb), bu
     
     \begin{subfigure}[b]{.48\textwidth}
 	\includegraphics[width=\linewidth]{figures/load} 
-	\caption{Load\vspace{0.2cm}}
+	\caption{LoadFromMSE\vspace{0.2cm}}
    	\end{subfigure}\hspace{0.03\textwidth}% 
    	\begin{subfigure}[b]{.48\textwidth}
 	\includegraphics[width=\linewidth]{figures/prop} 
@@ -280,7 +280,7 @@ With a larger Eden, more overall memory is used (in our case an extra 90 Mb), bu
  Benchmark & &  Exec. time &  time & GC time &  time &  Heap size & Heap size \\
   & &  (ms) &  (ms) & (ms) &  (ms) &  (Mb) &  (Mb) \\
    \hline
-   \multirow{4}{*}{Load} & Sweep 	& 159821 $\pm$ 2218 &	73599 $\pm$ 1281 	& 10863 $\pm$ 726 	&1398 $\pm$ 91 	& 193 $\pm$ 0 	& 959 $\pm$ 9.69 \\
+   \multirow{4}{*}{LoadFromMSE} & Sweep 	& 159821 $\pm$ 2218 &	73599 $\pm$ 1281 	& 10863 $\pm$ 726 	&1398 $\pm$ 91 	& 193 $\pm$ 0 	& 959 $\pm$ 9.69 \\
     				    & Compact 	& 162305 $\pm$ 2790 &	72150 $\pm$ 782 	& 14091 $\pm$ 972 	&4661 $\pm$ 289 	& 193 $\pm$ 0 	& 909 $\pm$ 9.69 \\
     				    & Compact-16 	& 96043 $\pm$ 540 &	14279 $\pm$ 124 	& 12440 $\pm$ 217 	&5575 $\pm$ 36 	& 283 $\pm$ 0 	& 1055 $\pm$ 0 \\
     				    & Sweep-16 		& 91721 $\pm$ 1131 &	13862 $\pm$ 49 	& 9352 $\pm$ 73 	&1208 $\pm$ 9 	& 283 $\pm$ 0 	& 988 $\pm$ 0 \\
@@ -306,7 +306,7 @@ With a larger Eden, more overall memory is used (in our case an extra 90 Mb), bu
 
 The results are shown in Figure \ref{MooseRes1} and \ref{MooseRes2}. 
 
-\paragraph{Load.} The Load benchmark grows the memory by around 700Mb. Compaction time is smaller for the sweep algorithm, making the benchmark a little bit faster in the Mark-Sweep, which is to be expected since Sweep does not need to waste time updating pointers because objects are not moved in memory.
+\paragraph{LoadFromMSE.} The LoadFromMSE benchmark grows the memory by around 700Mb. Compaction time is smaller for the sweep algorithm, making the benchmark a little bit faster in the Mark-Sweep, which is to be expected since Sweep does not need to waste time updating pointers because objects are not moved in memory.
 
 \paragraph{ExpandProperties.} The ExpandProperties benchmark grows the memory by around 1 Gb. Compaction time is a little bit better with the sweep algorithm as for the previous benchmark, but execution time is much worse. We believe this is due to worse locality of objects. With a larger Eden,  scavenge time is much smaller and the execution time is a bit faster due to improved object locality.
 
